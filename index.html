@@ -1079,6 +1079,34 @@ body::before{transition:transform 3.6s cubic-bezier(.35,.05,.2,1),opacity 3.6s e
 .arena #ballA>svg,.arena #ballA .character-afterimage{width:50px;height:55px;max-width:none;margin:0;display:block}
 .arena #ballB>svg,.arena #ballB .character-afterimage{width:44px;height:60px;max-width:none;margin:0;display:block}
 .arena[data-state='launching']>.action>#play{white-space:pre-line;line-height:1.5}
+
+body:not(.menu-mode) .arena>.hud{flex:none;min-height:0;width:min(570px,calc(100% - 28px));margin:32px auto 10px;position:relative;z-index:2}
+.arena .readouts{position:relative;display:grid;grid-template-columns:1fr 1fr 1.3fr;align-items:center;gap:0;width:100%;padding:14px 10px;border:1px solid #d7bde64f;border-radius:17px;background:linear-gradient(135deg,#afbfe51c,#17182d8c 42%,#bd8dbb17);backdrop-filter:blur(18px) saturate(145%);-webkit-backdrop-filter:blur(18px) saturate(145%);box-shadow:0 10px 25px #0004,inset 0 1px 0 #ffffff30,inset 0 -1px 0 #b8a2dc12;font-family:"DNFBitBitv2",sans-serif}
+.arena .readouts::before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,#ead8ff8c,transparent)}
+.arena .readouts .hud-tile{text-align:center;min-width:0;padding:0 9px}
+.arena .readouts .hud-tile+.hud-tile{border-left:1px solid #d6c9e526}
+.arena .readouts .hud-tile>span{display:block;font-size:11px;letter-spacing:.12em;line-height:1.4;color:#b9b6cf;margin-bottom:7px}
+.arena .readouts output{font:32px/1.15 "DNFBitBitv2",sans-serif;letter-spacing:.015em;margin:0;white-space:nowrap;font-variant-numeric:tabular-nums;color:#e2dcff;text-shadow:0 0 12px #bba0ec22}
+.arena .readouts #combo{color:#ffcee8}
+.arena .readouts #total{color:#ffe1a8;text-shadow:0 0 14px #ffcf731f}
+@media(max-width:600px) and (orientation:portrait){
+body:not(.menu-mode) .arena>.hud{margin-top:26px;margin-bottom:8px}
+.arena .readouts{padding:12px 6px;border-radius:14px}
+.arena .readouts .hud-tile{padding:0 5px}
+.arena .readouts .hud-tile>span{font-size:9px;margin-bottom:6px}
+.arena .readouts output{font-size:25px}
+}
+@media(orientation:landscape) and (max-height:600px){
+body:not(.menu-mode) .arena>.hud{width:min(450px,calc(100% - 28px));margin-top:18px;margin-bottom:6px}
+.arena .readouts{padding:9px 6px;border-radius:12px}
+.arena .readouts .hud-tile>span{font-size:8px;margin-bottom:4px}
+.arena .readouts output{font-size:22px}
+}
+@media(orientation:landscape) and (max-height:360px){
+body:not(.menu-mode) .arena>.hud{margin-top:12px;margin-bottom:4px}
+.arena .readouts{padding:7px 6px}
+.arena .readouts output{font-size:20px}
+}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1198,7 +1226,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 <p id="orientation-tip" role="status">휴대폰을 가로로 돌리면 게임판이 더 크게 보여요.</p><section class="hero"><div class="tag">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</div><h1 aria-label="무궁무진 블랙홀"><span aria-hidden="true"><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">무</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">궁</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">무</span><span class="floating-letter" style="--float-delay:-1.14s;--float-duration:5.03s">진</span> <em><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">블</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">랙</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">홀</span></em></span></h1><div class="hud-controls"><span id="pause" hidden aria-hidden="true"></span><button type="button" id="mobile-optimize" class="secondary" aria-pressed="false" title="모바일 최적화 배치 전환">모바일</button><button type="button" id="sound" class="secondary" aria-pressed="true">음악 켜짐</button><button type="button" id="help-open" class="secondary">게임 방법</button><button type="button" id="fullscreen" class="secondary" aria-pressed="false">전체화면</button><button type="button" id="leaderboard-open" class="secondary">스코어보드</button></div><p class="sub">교차점에서 두 신호가 겹치는 순간, <strong>SPACE</strong>로 포착!</p></section>
 <div id="network-notice" role="status" hidden><span id="network-message"></span><button type="button" id="network-retry" hidden>다시 연결</button></div><section class="arena" data-state="ready" aria-label="블랙홀 게임"><div class="status hud">
 
-<div class="readouts"><div>STAGE <output id="round">1 / 8</output></div><div>SCORE <output id="total">0</output></div><div>COMBO <output id="combo">0</output></div></div>
+<div class="readouts" role="group" aria-label="미션 현황"><div class="hud-tile"><span>STAGE</span><output id="round">1 / 8</output></div><div class="hud-tile"><span>COMBO</span><output id="combo">0</output></div><div class="hud-tile score-tile"><span>SCORE</span><output id="total">0</output></div></div>
 </div>
 <svg viewBox="0 17 900 305" role="img" aria-label="두 캐릭터가 도는 8자 트랙과 중앙 표적">
 <defs><pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#b398e9" opacity=".22"/></pattern><linearGradient id="track" gradientUnits="userSpaceOnUse" x1="58" y1="42" x2="842" y2="306"><stop stop-color="#f9b4e8" stop-opacity=".76"/><stop offset=".2" stop-color="#35254f" stop-opacity=".88"/><stop offset=".43" stop-color="#de86dc" stop-opacity=".8"/><stop offset=".58" stop-color="#161f42" stop-opacity=".92"/><stop offset=".8" stop-color="#9e77d6" stop-opacity=".74"/><stop offset="1" stop-color="#ffd1ef" stop-opacity=".6"/><animateTransform attributeName="gradientTransform" type="rotate" values="-14 450 174;16 450 174;-14 450 174" dur="8s" repeatCount="indefinite"/></linearGradient><linearGradient id="ribbon-edge" gradientUnits="userSpaceOnUse" x1="58" y1="174" x2="842" y2="174"><stop stop-color="#ffc8ef" stop-opacity=".16"/><stop offset=".36" stop-color="#ffe5fc" stop-opacity=".95"/><stop offset=".65" stop-color="#8372ce" stop-opacity=".13"/><stop offset="1" stop-color="#e9bdff" stop-opacity=".76"/><animateTransform attributeName="gradientTransform" type="translate" values="-180 0;160 0;-180 0" dur="6s" repeatCount="indefinite"/></linearGradient><filter id="track-glow" x="-25%" y="-40%" width="150%" height="180%"><feGaussianBlur stdDeviation="8"/></filter><radialGradient id="violet" cx="35%" cy="27%"><stop stop-color="#fff"/><stop offset=".35" stop-color="#d5b5ff"/><stop offset="1" stop-color="#8b48ff"/></radialGradient><radialGradient id="mint" cx="35%" cy="27%"><stop stop-color="#fff"/><stop offset=".35" stop-color="#b3fff5"/><stop offset="1" stop-color="#19a9bd"/></radialGradient><filter id="glow" x="-130%" y="-130%" width="360%" height="360%"><feGaussianBlur stdDeviation="8"/></filter></defs>
