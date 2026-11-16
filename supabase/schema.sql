@@ -227,7 +227,7 @@ begin
     from blackhole.best_scores where event_id=c.event_id
   ) ranked where employee_id=employee;
   select count(*) into v_count from blackhole.best_scores where event_id=c.event_id;
-  return jsonb_build_object('rank',v_rank,'participants',v_count,'score',c.score,'bestScore',b.score,
+  return jsonb_build_object('rank',v_rank,'participants',v_count,'rankedAt',clock_timestamp(),'score',c.score,'bestScore',b.score,
     'accuracy',round(c.sum_accuracy/8,2),'maxCombo',c.max_combo,'perfects',c.perfect_count);
 end;
 $$;

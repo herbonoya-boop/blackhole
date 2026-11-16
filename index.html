@@ -1070,6 +1070,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 const get = id => document.getElementById(id);
 const hosted=location.protocol==='https:'||location.protocol==='http:';
 let serverCoin=null,stagePeriod=0,networkRetry=null;
+let certifiedStanding=null,certificateRun=0;
 const errorMessages={
   NOT_CONFIGURED:'이벤트 서버를 준비하고 있어요. 잠시 후 다시 접속해 주세요.',
   EVENT_CLOSED:'지금은 이벤트 참여 기간이 아닙니다.',
@@ -1289,6 +1290,7 @@ async function showCoinStanding(){
   if(hosted){
     const saved=await gameRequest('submit',{coinId:serverCoin,employee:participant});
     points=saved.score;
+    certifiedStanding={...saved,rankedAt:saved.rankedAt||new Date().toISOString()};
     get('final-score').textContent=points.toLocaleString('ko-KR');
     get('coin-rank').textContent=saved.rank+'위 / '+saved.participants+'명';
     get('coin-rank-quip').textContent=saved.rank===1?'우주 서열 정리 완료! 블랙홀의 주인은 당신!':
@@ -1305,6 +1307,7 @@ async function showCoinStanding(){
   saveRecord(participant,average,maxCombo,perfects);
   const sorted=[...records].sort((a,b)=>finalScore(b.accuracy,b.combo,b.perfects)-finalScore(a.accuracy,a.combo,a.perfects)||b.accuracy-a.accuracy||b.combo-a.combo||a.employee.localeCompare(b.employee));
   const rank=sorted.findIndex(item=>item.employee===participant)+1;
+  certifiedStanding={rank,participants:sorted.length,score:points,bestScore:Math.max(points,previousPoints),accuracy:average,maxCombo,perfects,rankedAt:new Date().toISOString()};
   get('coin-rank').textContent=rank+'위 / '+sorted.length+'명';
   const message=rank===1?'우주 서열 정리 완료. 오늘의 블랙홀 주인은 당신!':
     rank<=10?'우주 특공대 합격! 손가락에 추진기 달았나요?':
@@ -1463,6 +1466,7 @@ function updateHud(){
 
 }
 function ready(){
+  certifiedStanding=null;certificateRun++;
   cancelAnimationFrame(frame);
   for(const id of ['ballA','ballB']) get(id).style.opacity='';
   serverCoin=null;stagePeriod=0;networkNotice('',null);
@@ -1824,34 +1828,128 @@ get('form').addEventListener('submit',async event=>{
   capture.disabled=false;
   get('notice').textContent='';
 });
-capture.addEventListener('click',()=>{
-  if(!stamped) return;
-  const canvas=document.createElement('canvas');
-  canvas.width=960;canvas.height=560;
-  const ctx=canvas.getContext('2d');
-  const gradient=ctx.createLinearGradient(0,0,960,560);
-  gradient.addColorStop(0,'#07080F');gradient.addColorStop(1,'#101322');
-  ctx.fillStyle=gradient;ctx.fillRect(0,0,960,560);
-  ctx.strokeStyle='#287781';ctx.lineWidth=2;ctx.strokeRect(24,24,912,512);
-  function line(text,x,y,size,color,maxWidth=800){
-    ctx.font='bold '+size+'px "Malgun Gothic", sans-serif';
-    ctx.fillStyle=color;ctx.fillText(text,x,y,maxWidth);
+async function certificateCharacter(id){
+  const sprite=get(id).querySelector('svg').cloneNode(true);
+  sprite.removeAttribute('x');sprite.removeAttribute('y');
+  sprite.setAttribute('width','180');sprite.setAttribute('height','200');
+  sprite.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  for(const face of sprite.querySelectorAll('.sad-face')) face.remove();
+  for(const element of sprite.querySelectorAll('image')){
+    const source=element.getAttribute('href');
+    if(!source.startsWith('data:')){
+      const response=await fetch(new URL(source,location.href));
+      if(!response.ok) throw new Error('캐릭터 이미지를 불러오지 못했어요. 다시 저장해 주세요.');
+      const data=await response.blob();
+      const encoded=await new Promise((resolve,reject)=>{
+        const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(data);
+      });
+      element.setAttribute('href',encoded);
+    }
   }
-  line('동아쏘시오그룹 · 조직문화 소통플랫폼 오픈 이벤트',62,84,22,'#a8b4c7');
-  line('무궁무진 블랙홀',62,165,60,'#ffffff');
-  line('싱크로율 · SCORE '+points,65,237,23,'#a8b4c7');
-  line(score,57,355,108,'#00F0FF');
-  line('사번  '+stamped,64,466,31,'#ffffff',570);
-  ctx.save();ctx.translate(688,385);ctx.rotate(-.07);
-  ctx.strokeStyle='#ffafc5';ctx.lineWidth=4;ctx.strokeRect(0,0,194,82);
-  line('참여 인증',25,53,34,'#ffafc5',144);ctx.restore();
-  canvas.toBlob(blob=>{
-    if(!blob){get('notice').textContent='이미지 저장에 실패했습니다. 다시 시도해 주세요.';return;}
-    const url=URL.createObjectURL(blob), link=document.createElement('a');
+  const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(sprite)],{type:'image/svg+xml;charset=utf-8'}));
+  try{
+    const image=new Image();
+    await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error('캐릭터 이미지를 준비하지 못했어요. 다시 저장해 주세요.'));image.src=url;});
+    return image;
+  }finally{URL.revokeObjectURL(url);}
+}
+
+async function createCertificate(record){
+  await document.fonts.load('400 48px "DNFBitBitv2"');
+  const characters=await Promise.all([certificateCharacter('ballA'),certificateCharacter('ballB')]);
+  const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=840;
+  const ctx=canvas.getContext('2d');
+  const gradient=ctx.createLinearGradient(0,0,1200,840);
+  gradient.addColorStop(0,'#080e22');gradient.addColorStop(.55,'#1f1533');gradient.addColorStop(1,'#0b1229');
+  ctx.fillStyle=gradient;ctx.fillRect(0,0,1200,840);
+  function glow(x,y,r,color){
+    const light=ctx.createRadialGradient(x,y,0,x,y,r);
+    light.addColorStop(0,color);light.addColorStop(1,'transparent');
+    ctx.fillStyle=light;ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+  glow(1030,130,380,'#a94c9740');glow(100,690,390,'#566fc330');
+  for(let i=0;i<110;i++){
+    const x=(i*179+31)%1200,y=(i*263+17)%840;
+    ctx.fillStyle=i%5===0?'#eab7e29c':'#bfcdf45c';
+    ctx.beginPath();ctx.arc(x,y,i%9===0?1.8:.8,0,Math.PI*2);ctx.fill();
+  }
+  function panel(x,y,width,height,radius=18){
+    ctx.beginPath();ctx.roundRect(x,y,width,height,radius);
+    ctx.fillStyle='#0b1026c2';ctx.fill();ctx.strokeStyle='#b19cd145';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  function text(value,x,y,size,color='#fff',maxWidth=1072){
+    const content=String(value);
+    ctx.font=size+'px "DNFBitBitv2", sans-serif';
+    const measured=ctx.measureText(content).width;
+    if(measured>maxWidth) ctx.font=(size*maxWidth/measured)+'px "DNFBitBitv2", sans-serif';
+    ctx.fillStyle=color;ctx.fillText(content,x,y);
+  }
+  ctx.beginPath();ctx.roundRect(24,24,1152,792,28);
+  const edge=ctx.createLinearGradient(24,24,1176,816);
+  edge.addColorStop(0,'#a9c3fa80');edge.addColorStop(.5,'#efaddaa6');edge.addColorStop(1,'#9188d473');
+  ctx.strokeStyle=edge;ctx.lineWidth=2;ctx.stroke();
+  text('동아쏘시오그룹',64,78,22,'#e5dbee');
+  text('조직문화 소통플랫폼 오픈 이벤트',64,111,17,'#9faec8');
+  text('8 STAGES COMPLETE',847,83,19,'#e7bce4',290);
+  text('무궁무진 블랙홀',64,191,58,'#fff1fc');
+  text('2032년의 성공 열쇠를 찾아, 2026년으로!',66,229,20,'#b8b3d5');
+  panel(64,265,642,205);panel(726,265,410,205);
+  text('최종 스코어',90,309,20,'#b9afce');
+  text(record.score.toLocaleString('ko-KR'),86,410,88,'#ffd5ee',585);
+  text('현재 순위',752,309,20,'#b9afce');
+  text(record.rank.toLocaleString('ko-KR')+'위',749,386,60,'#ffe0a4',355);
+  text('참가 '+record.participants.toLocaleString('ko-KR')+'명 중',754,428,19,'#c8c3dd',352);
+  const metrics=[['평균 싱크로율',Number(record.accuracy).toFixed(2)+'%','#c2bdff'],['최대 콤보','×'+record.maxCombo,'#ffb8df'],['퍼펙트',record.perfects+' / 8','#ffe3a6']];
+  metrics.forEach(([label,value,color],index)=>{
+    const x=64+index*364;panel(x,490,344,112,14);
+    text(label,x+22,528,17,'#a9afc7');text(value,x+20,579,35,color,300);
+  });
+  ctx.strokeStyle='#b19cd13d';ctx.beginPath();ctx.moveTo(64,630);ctx.lineTo(1136,630);ctx.stroke();
+  text('참가 사번',67,672,17,'#aeb7cf');
+  text(record.employee,64,716,30,'#fff',560);
+  const time=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(record.rankedAt));
+  text('순위 확인 · '+time+' KST',67,756,15,'#a7abc3',645);
+  text('개인 최고 '+record.bestScore.toLocaleString('ko-KR')+'점 기준 순위',67,784,13,'#8f98b2',630);
+  panel(710,655,170,72,14);text('참여 인증',733,701,26,'#ffcae6',130);
+  glow(1015,710,120,'#d979bd2d');
+  ctx.drawImage(characters[0],895,627,115,145);
+  ctx.drawImage(characters[1],1011,627,108,145);
+  text('무궁이',922,790,14,'#e5aed4',90);text('무진이',1036,790,14,'#cfc6f5',90);
+  return canvas;
+}
+
+capture.addEventListener('click',async()=>{
+  if(!stamped||capture.disabled) return;
+  const generation=certificateRun;
+  const employeeId=stamped,coinId=serverCoin;
+  const snapshot={...certifiedStanding,employee:employeeId};
+  const originalLabel=capture.textContent;
+  capture.disabled=true;capture.textContent='이미지 준비 중…';
+  try{
+    let current=snapshot;
+    if(hosted){
+      const saved=await gameRequest('submit',{coinId,employee:employeeId});
+      current={...saved,employee:employeeId,rankedAt:saved.rankedAt||new Date().toISOString()};
+    }else{
+      const sorted=[...records].sort((a,b)=>finalScore(b.accuracy,b.combo,b.perfects)-finalScore(a.accuracy,a.combo,a.perfects)||b.accuracy-a.accuracy||b.combo-a.combo||a.employee.localeCompare(b.employee));
+      current={...snapshot,rank:sorted.findIndex(item=>item.employee===employeeId)+1,participants:sorted.length,rankedAt:new Date().toISOString()};
+    }
+    if(generation!==certificateRun) return;
+    const canvas=await createCertificate(current);
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+    if(!blob) throw new Error('이미지 저장에 실패했어요. 다시 시도해 주세요.');
+    if(generation!==certificateRun) return;
+    const url=URL.createObjectURL(blob),link=document.createElement('a');
     link.href=url;link.download='무궁무진-블랙홀-참여인증.png';
     document.body.append(link);link.click();link.remove();
     setTimeout(()=>URL.revokeObjectURL(url),10000);
-    get('notice').textContent='';
-  },'image/png');
+    notice.textContent='';
+  }catch(error){
+    if(generation===certificateRun){notice.hidden=false;notice.textContent=error.message||'인증 이미지를 저장하지 못했어요. 다시 시도해 주세요.';}
+  }finally{
+    capture.textContent=originalLabel;
+    if(generation===certificateRun) capture.disabled=false;
+  }
 });
+
 </script></body></html>

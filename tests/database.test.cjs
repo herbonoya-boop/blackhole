@@ -40,7 +40,11 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     await assert.rejects(rpc('bh_submit_coin', [winner.id, 'c'.repeat(64), '000001']), /INVALID_SESSION/);
     const registered = await rpc('bh_submit_coin', [winner.id, token, '000001']);
     assert.equal(registered.rank, 1);
-    assert.deepEqual(await rpc('bh_submit_coin', [winner.id, token, '000001']), registered);
+    const repeated = await rpc('bh_submit_coin', [winner.id, token, '000001']);
+    assert.ok(Date.parse(repeated.rankedAt) >= Date.parse(registered.rankedAt));
+    const { rankedAt: firstRankTime, ...originalResult } = registered;
+    const { rankedAt: secondRankTime, ...repeatedResult } = repeated;
+    assert.deepEqual(repeatedResult, originalResult);
     await assert.rejects(rpc('bh_submit_coin', [winner.id, token, '000002']), /ALREADY_SUBMITTED/);
     const worse = await coin(false);
     const lower = await rpc('bh_submit_coin', [worse.id, token, '000001']);
