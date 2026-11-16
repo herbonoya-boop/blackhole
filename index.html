@@ -794,6 +794,76 @@ animation:orbital-suction 2.3s .15s linear both
 
 #network-notice{margin:6px auto;padding:10px 14px;max-width:700px;border:1px solid #e8b8ec66;border-radius:8px;background:#12162ce8;color:#ffdfef;font:14px/1.6 "DNFBitBitv2",sans-serif;text-align:center;z-index:5}
 #network-retry{padding:5px 12px;margin-left:8px;font:13px "DNFBitBitv2",sans-serif}
+
+/* Compact game controls and a tactile stop switch. */
+.hero>.hud-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:7px;margin:12px auto 6px;width:auto;max-width:100%}
+.hero .hud-controls button.secondary{flex:0 0 106px;width:106px;height:38px;min-height:38px;padding:0 6px;font-size:12px;border-color:#d7a4d46b;background:#0b10252e;border-radius:7px}
+.hero .hud-controls button.secondary::before{width:15px;height:15px;flex-basis:15px}
+.arena>.hud{display:flex;justify-content:center;min-height:34px;margin:2px auto}
+.arena .readouts{display:flex;justify-content:center;gap:clamp(22px,5vw,64px)}
+.arena>.action{display:flex;justify-content:center;align-items:center;margin:3px 0 10px;min-height:104px}
+#play{position:relative;display:inline-flex;justify-content:center;align-items:center;flex:none;box-sizing:border-box;width:92px;height:92px;min-height:92px;border-radius:50%;border:7px solid #2c3141;padding:0 7px;
+background:radial-gradient(circle at 38% 25%,#ff8f8f 0%,#f74a59 24%,#d8223d 58%,#a30b29 100%);color:#fff;font-family:"DNFBitBitv2","Malgun Gothic",sans-serif;font-size:18px;font-weight:400;letter-spacing:0;line-height:1.3;text-align:center;white-space:normal;
+box-shadow:0 7px 0 #080b15,0 11px 18px #0009,inset 0 3px 2px #ffc2bd88,inset 0 -7px 0 #7b0a25,0 0 0 1px #8691a066;text-shadow:0 2px 1px #7a0b28;transition:transform 80ms ease,box-shadow 80ms ease,filter 120ms ease}
+#play::before{content:"";position:absolute;top:6px;left:17px;right:17px;height:16px;border-radius:50%;background:linear-gradient(#ffffff3b,#ffffff00);pointer-events:none}
+#play:not(:disabled):hover{filter:brightness(1.08)}
+#play:not(:disabled):active,#play:not(:disabled).key-pressed{transform:translateY(5px);box-shadow:0 2px 0 #080b15,0 5px 9px #0008,inset 0 1px 3px #ffc2bd55,inset 0 -2px 0 #7b0a25,0 0 0 1px #8691a066}
+#play:disabled{opacity:.62;cursor:wait}
+.arena[data-state="finished"] #play,.arena[data-state="launching"] #play,.arena[data-state="connecting"] #play{font-size:13px}
+@media(max-width:900px){
+.hero h1{font-size:clamp(30px,6.7vw,56px);line-height:1.15;margin:4px 0}
+.hero{padding:4px 0 0}
+.hero>.hud-controls{margin:6px auto 2px;gap:6px}
+.hero .hud-controls button.secondary{flex-basis:93px;width:93px;height:36px;min-height:36px;font-size:11px}
+.hero .sub{display:none}
+}
+@media(max-width:600px) and (orientation:portrait){
+main{padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}
+header{font-size:9px;line-height:1.4;padding-bottom:4px}
+.hero h1{font-size:clamp(28px,8vw,43px);margin:5px 0;line-height:1.25}
+.hero>.tag{font-size:11px}
+.hero>.hud-controls{display:flex;flex-wrap:nowrap;gap:4px;width:100%;margin:6px auto 0}
+.hero .hud-controls button.secondary{flex:1 1 0;width:auto;min-width:0;height:40px;min-height:40px;font-size:10px;padding:0 3px;gap:4px}
+.hero .hud-controls button.secondary::before{width:13px;height:13px;flex-basis:13px}
+.arena>.hud{margin-top:10px;min-height:34px}
+.arena .readouts{font-size:10px;gap:32px}
+.arena .readouts output{font-size:19px}
+.arena>svg{width:100%;max-width:100%;min-height:0}
+.arena>.action{margin:4px 0 12px;min-height:102px}
+#orientation-tip{font-size:10px;line-height:1.4;margin:2px 10px}
+}
+@media(orientation:landscape) and (max-height:600px){
+header{font-size:9px;line-height:1.2;padding-bottom:0}
+.hero{padding:2px 0 0}
+.hero h1{font-size:clamp(23px,6.3vh,34px);line-height:1.1;margin:3px 0}
+.hero>.tag{line-height:1.25}
+.hero>.hud-controls{margin:5px auto 1px;gap:6px}
+.hero .hud-controls button.secondary{flex-basis:90px;width:90px;height:32px;min-height:32px;font-size:10px}
+.arena>.hud{min-height:25px;margin:1px auto 0}
+.arena .readouts{font-size:9px;gap:36px}
+.arena .readouts output{font-size:15px;line-height:1.1}
+.arena>.action{min-height:72px;margin:1px 0 5px}
+#play{width:66px;height:66px;min-height:66px;border-width:5px;padding:0 4px;font-size:15px}
+#play::before{top:4px;left:10px;right:10px;height:12px}
+.arena[data-state="finished"] #play,.arena[data-state="launching"] #play,.arena[data-state="connecting"] #play{font-size:10px}
+}
+
+.hero :is(#sound,#help-open,#fullscreen,#leaderboard-open){flex:0 0 106px;width:106px;min-width:0;height:38px;min-height:38px;padding:0 6px;font-size:12px}
+@media(max-width:900px){.hero :is(#sound,#help-open,#fullscreen,#leaderboard-open){flex-basis:93px;width:93px;height:36px;min-height:36px;font-size:11px}}
+@media(max-width:600px) and (orientation:portrait){.hero :is(#sound,#help-open,#fullscreen,#leaderboard-open){flex:1 1 0;width:auto;height:40px;min-height:40px;padding:0 3px;font-size:10px}}
+@media(orientation:landscape) and (max-height:600px){.hero :is(#sound,#help-open,#fullscreen,#leaderboard-open){flex:0 0 90px;width:90px;height:32px;min-height:32px;padding:0 5px;font-size:10px}}
+@media(max-width:360px){.hero :is(#sound,#help-open,#fullscreen,#leaderboard-open){font-size:9px;padding:0 2px;gap:3px}.hero .hud-controls button.secondary::before{width:12px;height:12px;flex-basis:12px}}
+
+@media(orientation:landscape) and (max-height:600px){
+.hero{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0 2px}
+.hero>.tag{display:none}
+.hero h1{flex:0 0 auto;font-size:clamp(20px,5.5vh,30px);margin:0;line-height:1.2}
+.hero>.hud-controls{flex:0 1 auto;width:auto;max-width:none;margin:0;gap:4px;flex-wrap:nowrap}
+.hero :is(#sound,#help-open,#fullscreen,#leaderboard-open){flex:0 0 82px;width:82px;font-size:9px;padding:0 4px;gap:4px}
+.hero .hud-controls button.secondary::before{width:13px;height:13px;flex-basis:13px}
+}
+.arena[data-state='running']>#play{white-space:nowrap}.arena[data-state='running']>.action>#play{white-space:nowrap;font-size:18px}
+@media(orientation:landscape) and (max-height:600px){.arena[data-state='running']>.action>#play{font-size:14px}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -910,9 +980,9 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 <section id="exit-screen" hidden aria-labelledby="exit-title"><div><p class="tag">MISSION STANDBY</p><h2 id="exit-title">다음 워프에서 만나요!</h2><p>플레이를 종료했습니다. 브라우저 탭을 닫아 나갈 수 있어요.</p><button type="button" id="exit-return">메인 메뉴로</button></div></section>
 <main>
 <header><strong>동아쏘시오그룹</strong><span>조직문화 소통플랫폼 오픈 이벤트</span></header>
-<p id="orientation-tip" role="status">휴대폰을 가로로 돌리면 게임판이 더 크게 보여요.</p><section class="hero"><div class="tag">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</div><h1 aria-label="무궁무진 블랙홀"><span aria-hidden="true"><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">무</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">궁</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">무</span><span class="floating-letter" style="--float-delay:-1.14s;--float-duration:5.03s">진</span> <em><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">블</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">랙</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">홀</span></em></span></h1><div class="mission-code">E V E N T &nbsp; H O R I Z O N &nbsp; ∞</div><p class="sub">교차점에서 두 신호가 겹치는 순간, <strong>SPACE</strong>로 포착!</p></section>
+<p id="orientation-tip" role="status">휴대폰을 가로로 돌리면 게임판이 더 크게 보여요.</p><section class="hero"><div class="tag">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</div><h1 aria-label="무궁무진 블랙홀"><span aria-hidden="true"><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">무</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">궁</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">무</span><span class="floating-letter" style="--float-delay:-1.14s;--float-duration:5.03s">진</span> <em><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">블</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">랙</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">홀</span></em></span></h1><div class="hud-controls"><span id="pause" hidden aria-hidden="true"></span><button type="button" id="sound" class="secondary" aria-pressed="true">음악 켜짐</button><button type="button" id="help-open" class="secondary">게임 방법</button><button type="button" id="fullscreen" class="secondary" aria-pressed="false">전체화면</button><button type="button" id="leaderboard-open" class="secondary">스코어보드</button></div><p class="sub">교차점에서 두 신호가 겹치는 순간, <strong>SPACE</strong>로 포착!</p></section>
 <div id="network-notice" role="status" hidden><span id="network-message"></span><button type="button" id="network-retry" hidden>다시 연결</button></div><section class="arena" data-state="ready" aria-label="블랙홀 게임"><div class="status hud">
-<div class="hud-controls"><span id="pause" hidden aria-hidden="true"></span><button type="button" id="sound" class="secondary" aria-pressed="true">음악 켜짐</button><button type="button" id="help-open" class="secondary">게임 방법</button><button type="button" id="fullscreen" class="secondary" aria-pressed="false">전체화면</button><button type="button" id="leaderboard-open" class="secondary">스코어보드</button></div>
+
 <div class="readouts"><div>STAGE <output id="round">1 / 8</output></div><div>SCORE <output id="total">0</output></div><div>COMBO <output id="combo">0</output></div></div>
 </div>
 <svg viewBox="0 17 900 305" role="img" aria-label="두 캐릭터가 도는 8자 트랙과 중앙 표적">
@@ -981,7 +1051,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 <p class="help-intro">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</p>
 <ol class="help-steps">
 <li><strong>미션 시작</strong><p>버튼 또는 Space로 1코인, 총 8개 스테이지을 시작하세요. 각 결과에서 Space 또는 ‘다음 스테이지’을 누르면 다음 스테이지로 이어집니다.</p></li>
-<li><strong>중앙 블랙홀을 노려라!</strong><p>두 캐릭터가 중앙에서 겹치는 순간 Space 또는 ‘지금 멈추기’를 누르세요. 중앙에 가까울수록 싱크로율이 높아집니다.</p></li>
+<li><strong>중앙 블랙홀을 노려라!</strong><p>두 캐릭터가 중앙에서 겹치는 순간 Space 또는 ‘스톱!’를 누르세요. 중앙에 가까울수록 싱크로율이 높아집니다.</p></li>
 <li><strong>90% 이상이면 콤보!</strong><p>한 번의 도전은 1코인이며, 총 8개 스테이지로 구성됩니다. 싱크로율 90% 이상이면 콤보 +1, 90% 미만이면 콤보가 0이 됩니다. 실패해도 8단계까지 계속 진행하며, 스테이지마다 속도와 궤도의 기울기가 조금씩 올라갑니다.</p></li>
 <li><strong>기록 인증하기</strong><p>8개 스테이지가 끝나면 결과 화면에서 사번을 입력하고 ‘스코어보드에 올리기’를 누르세요. 최고 기록이 등록되고 순위가 표시됩니다.</p></li>
 </ol>
@@ -1104,7 +1174,12 @@ function fitOpeningMission(){
   const measured=range.getBoundingClientRect().width;
   if(measured) mission.style.fontSize=(18*width/measured).toFixed(2)+'px';
 }
-document.fonts.ready.then(()=>{fitMissionHeading();fitOpeningMission();});
+function fitGameViewport(){
+  const screen=document.querySelector('.arena>svg');
+  if(screen) screen.setAttribute('viewBox',window.innerWidth<=900?'90 40 720 275':'0 17 900 305');
+}
+document.fonts.ready.then(()=>{fitMissionHeading();fitOpeningMission();fitGameViewport();});
+window.addEventListener('resize',fitGameViewport);
 window.addEventListener('resize',fitOpeningMission);
 window.addEventListener('resize',fitMissionHeading);
 
@@ -1490,9 +1565,9 @@ async function start(){
   arena.dataset.judge='';arena.dataset.hit='false';arena.dataset.sad='false';arena.dataset.comboHit='false';
   unlockMusic();
   setState('running');
-  gameHint.innerHTML='중앙에서 겹치는 순간 <kbd>Space</kbd> 또는 지금 멈추기';
+  gameHint.innerHTML='중앙에서 겹치는 순간 <kbd>Space</kbd> 또는 스톱!';
   play.disabled=false;
-  play.textContent='지금 멈추기';
+  play.textContent='스톱!';
   offset=serverStage?serverStage.offset:.85+Math.random()*.65;
   stagePeriod=serverStage?serverStage.period:period/(1+(round-1)*.012);
   phase=offset;
@@ -1510,7 +1585,7 @@ function togglePause(){
   }else if(state==='paused'){
     started+=performance.now()-pausedAt;
     setState('running');
-    play.textContent='지금 멈추기';
+    play.textContent='스톱!';
     gameHint.innerHTML='중앙에서 겹치는 순간 <kbd>Space</kbd>';
     frame=requestAnimationFrame(tick);
   }
@@ -1720,8 +1795,10 @@ document.addEventListener('keydown',event=>{
   if(event.code!=='Space'||event.target.closest('input,textarea,select,[contenteditable]')) return;
   if(event.target.closest('button')&&event.target!==play&&event.target!==retry) return;
   event.preventDefault();
-  if(!event.repeat) activate();
+  if(!event.repeat){play.classList.add('key-pressed');activate();}
 });
+document.addEventListener('keyup',event=>{if(event.code==='Space')play.classList.remove('key-pressed');});
+window.addEventListener('blur',()=>play.classList.remove('key-pressed'));
 employee.addEventListener('input',()=>{employee.setCustomValidity('');clearStamp();get('coin-standing').hidden=true;});
 get('form').addEventListener('submit',async event=>{
   event.preventDefault();
