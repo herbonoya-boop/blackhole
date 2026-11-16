@@ -1068,6 +1068,8 @@ body::before{transition:transform 3.6s cubic-bezier(.35,.05,.2,1),opacity 3.6s e
 .arena[data-launch="drawing"] #crossing-bridge{animation:crossing-bridge-reveal .6s 1.5s ease-out both}
 @keyframes crossing-bridge-reveal{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.arena[data-launch="drawing"] #crossing-bridge{animation:none}}
+
+.arena:not([data-state="ready"]) #ballA>svg,.arena:not([data-state="ready"]) #ballB>svg{filter:drop-shadow(0 1px 1.5px #03040bad)}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1601,7 +1603,7 @@ function paint(phase){
     style.setProperty('--suction-radius',id==='ballA'?'62px':'72px');
     style.setProperty('--suction-start',id==='ballA'?'0deg':'180deg');
     for(let i=1;i<=2;i++){
-      const [tailX,tailY]=point(at-i*.1);
+      const [tailX,tailY]=point(at-i*.015);
       const ghost=get(id+'-ghost'+i);
       ghost.setAttribute('x',tailX-x);
       ghost.setAttribute('y',tailY-y);
