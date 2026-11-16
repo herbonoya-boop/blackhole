@@ -1884,64 +1884,106 @@ async function certificateCharacter(id){
 async function createCertificate(record){
   await document.fonts.load('400 48px "DNFBitBitv2"');
   const characters=await Promise.all([certificateCharacter('ballA'),certificateCharacter('ballB')]);
-  const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=840;
+  const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1440;
   const ctx=canvas.getContext('2d');
-  const gradient=ctx.createLinearGradient(0,0,1200,840);
-  gradient.addColorStop(0,'#080e22');gradient.addColorStop(.55,'#1f1533');gradient.addColorStop(1,'#0b1229');
-  ctx.fillStyle=gradient;ctx.fillRect(0,0,1200,840);
-  function glow(x,y,r,color){
-    const light=ctx.createRadialGradient(x,y,0,x,y,r);
-    light.addColorStop(0,color);light.addColorStop(1,'transparent');
-    ctx.fillStyle=light;ctx.fillRect(x-r,y-r,r*2,r*2);
+  const foil=ctx.createLinearGradient(30,30,1050,1410);
+  [[0,'#c2daec'],[.13,'#f3cbe8'],[.27,'#c6f5ee'],[.43,'#a5b3e1'],[.58,'#f5dabd'],[.72,'#c4eef0'],[.88,'#d0b5ea'],[1,'#9fbad2']].forEach(([offset,color])=>foil.addColorStop(offset,color));
+  function round(x,y,w,h,r,fill,stroke){
+    ctx.beginPath();ctx.roundRect(x,y,w,h,r);
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke();}
   }
-  glow(1030,130,380,'#a94c9740');glow(100,690,390,'#566fc330');
-  for(let i=0;i<110;i++){
-    const x=(i*179+31)%1200,y=(i*263+17)%840;
-    ctx.fillStyle=i%5===0?'#eab7e29c':'#bfcdf45c';
-    ctx.beginPath();ctx.arc(x,y,i%9===0?1.8:.8,0,Math.PI*2);ctx.fill();
-  }
-  function panel(x,y,width,height,radius=18){
-    ctx.beginPath();ctx.roundRect(x,y,width,height,radius);
-    ctx.fillStyle='#0b1026c2';ctx.fill();ctx.strokeStyle='#b19cd145';ctx.lineWidth=1.5;ctx.stroke();
-  }
-  function text(value,x,y,size,color='#fff',maxWidth=1072){
-    const content=String(value);
-    ctx.font=size+'px "DNFBitBitv2", sans-serif';
-    const measured=ctx.measureText(content).width;
-    if(measured>maxWidth) ctx.font=(size*maxWidth/measured)+'px "DNFBitBitv2", sans-serif';
+  function text(value,x,y,size,color='#fff',maxWidth=880){
+    const content=String(value);ctx.font=size+'px "DNFBitBitv2", sans-serif';
+    const width=ctx.measureText(content).width;
+    if(width>maxWidth)ctx.font=(size*maxWidth/width)+'px "DNFBitBitv2", sans-serif';
     ctx.fillStyle=color;ctx.fillText(content,x,y);
   }
-  ctx.beginPath();ctx.roundRect(24,24,1152,792,28);
-  const edge=ctx.createLinearGradient(24,24,1176,816);
-  edge.addColorStop(0,'#a9c3fa80');edge.addColorStop(.5,'#efaddaa6');edge.addColorStop(1,'#9188d473');
-  ctx.strokeStyle=edge;ctx.lineWidth=2;ctx.stroke();
-  text('동아쏘시오그룹',64,78,22,'#e5dbee');
-  text('조직문화 소통플랫폼 오픈 이벤트',64,111,17,'#9faec8');
-  text(record.preview?'PRACTICE RECORD':'8 STAGES COMPLETE',847,83,19,'#e7bce4',290);
-  text('무궁무진 블랙홀',64,191,58,'#fff1fc');
-  text('2032년의 성공 열쇠를 찾아, 2026년으로!',66,229,20,'#b8b3d5');
-  panel(64,265,642,205);panel(726,265,410,205);
-  text('최종 스코어',90,309,20,'#b9afce');
-  text(record.score.toLocaleString('ko-KR'),86,410,88,'#ffd5ee',585);
-  text('현재 순위',752,309,20,'#b9afce');
-  text(record.rank.toLocaleString('ko-KR')+'위',749,386,60,'#ffe0a4',355);
-  text('참가 '+record.participants.toLocaleString('ko-KR')+'명 중',754,428,19,'#c8c3dd',352);
-  const metrics=[['평균 싱크로율',Number(record.accuracy).toFixed(2)+'%','#c2bdff'],['최대 콤보','×'+record.maxCombo,'#ffb8df'],['퍼펙트',record.perfects+' / 8','#ffe3a6']];
-  metrics.forEach(([label,value,color],index)=>{
-    const x=64+index*364;panel(x,490,344,112,14);
-    text(label,x+22,528,17,'#a9afc7');text(value,x+20,579,35,color,300);
+  function engraved(value,x,y,size,maxWidth=880){
+    text(value,x,y+1.5,size,'#f5f4ff8c',maxWidth);
+    text(value,x,y-1,size,'#040a28c9',maxWidth);
+    text(value,x,y,size,'#9eabc6',maxWidth);
+  }
+  function halo(x,y,r,color){
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);
+  }
+  round(24,24,1032,1392,56,foil);
+  ctx.save();ctx.beginPath();ctx.roundRect(24,24,1032,1392,56);ctx.clip();
+  // Fine foil facets are drawn into the exported image, so they survive sharing.
+  for(let i=-8;i<20;i++){
+    ctx.save();ctx.translate(i*95,0);ctx.rotate(-.32);
+    const strip=ctx.createLinearGradient(0,0,68,0);
+    strip.addColorStop(0,'#ffffff00');strip.addColorStop(.48,'#ffffff52');strip.addColorStop(1,'#a6dcff00');
+    ctx.fillStyle=strip;ctx.fillRect(0,-350,68,2100);ctx.restore();
+  }
+  round(45,45,990,1350,40,'#101831de','#ffffffb3');
+  halo(830,325,500,'#d388c744');halo(210,620,500,'#7dd5e92e');
+  halo(950,1120,430,'#a98dd433');
+  const laminate=ctx.createLinearGradient(45,250,1035,1200);
+  [[0,'#b7f3ff14'],[.25,'#e7b3ff18'],[.46,'#ffe5b40c'],[.68,'#aaf5e51a'],[1,'#c5bcff10']].forEach(([at,color])=>laminate.addColorStop(at,color));
+  round(45,45,990,1350,40,laminate);
+
+  ctx.save();ctx.globalAlpha=.25;
+  for(let y=72;y<1380;y+=5){ctx.fillStyle=y%10===2?'#d9e5f214':'#00000012';ctx.fillRect(62,y,956,1);}
+  ctx.restore();
+  round(60,60,960,1320,30,null,'#c1c8f134');
+  text('동아쏘시오그룹',87,112,24,'#e1e8f4');
+  text('조직문화 소통플랫폼 오픈 이벤트',88,147,17,'#a5b0ca');
+  round(774,82,218,64,13,'#dae3fa0e','#ebd5ec70');
+  engraved(record.preview?'PRACTICE CARD':'HOLOGRAM PASS',791,121,18,188);
+  text('무궁무진',85,227,64,'#edf5ff');
+  text('블랙홀',86,305,76,'#ffcaec');
+  engraved('2032년의 성공 열쇠를 찾아, 2026년으로!',90,349,19);
+  // A curved holographic field behind the raised character cutouts.
+  const ribbon=ctx.createLinearGradient(150,430,930,800);
+  ribbon.addColorStop(0,'#aff7ef');ribbon.addColorStop(.45,'#e2bbef');ribbon.addColorStop(1,'#ffdbad');
+  ctx.save();ctx.strokeStyle=ribbon;ctx.lineWidth=2;ctx.globalAlpha=.3;
+  for(let ring=0;ring<4;ring++){
+    ctx.beginPath();ctx.ellipse(540,634,344+ring*10,170+ring*9,-.22,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.restore();
+  function figurine(image,x,y,width,height){
+    const middle=x+width/2,base=y+height-4;
+    halo(middle,base-24,width*.7,'#c3a7f02d');
+    ctx.save();ctx.shadowColor='#030615bb';ctx.shadowBlur=20;ctx.shadowOffsetY=12;
+    ctx.beginPath();ctx.ellipse(middle,base+2,width*.4,17,0,0,Math.PI*2);
+    ctx.fillStyle='#181d35';ctx.fill();ctx.restore();
+    const plinth=ctx.createLinearGradient(x,base-13,x+width,base+13);
+    plinth.addColorStop(0,'#71819e');plinth.addColorStop(.4,'#d0c6e9');plinth.addColorStop(1,'#697e97');
+    ctx.beginPath();ctx.ellipse(middle,base-4,width*.4,14,0,0,Math.PI*2);
+    ctx.fillStyle=plinth;ctx.fill();
+    ctx.save();ctx.shadowColor='#040519cc';ctx.shadowBlur=22;ctx.shadowOffsetX=8;ctx.shadowOffsetY=13;
+    ctx.drawImage(image,x,y,width,height);ctx.restore();
+    ctx.save();ctx.globalAlpha=.06;ctx.filter='brightness(1.6)';ctx.drawImage(image,x-1,y-1,width,height);ctx.restore();
+  }
+  figurine(characters[0],230,403,280,348);
+  figurine(characters[1],565,408,262,343);
+  text('무궁이',313,795,20,'#edb4d8',160);text('무진이',636,795,20,'#c9c5f0',160);
+  // Engraved seal, foil border and a pale raised highlight.
+  round(337,822,406,70,18,'#e6d8f110','#e7c5e0a6');
+  engraved('참여 인증',419,868,32,250);
+  round(86,925,908,170,22,'#0a1025b5','#c2b8df4d');
+  engraved('최종 스코어',112,963,17,470);
+  text(record.score.toLocaleString('ko-KR'),106,1051,74,'#ffd9ef',548);
+  ctx.beginPath();ctx.moveTo(691,951);ctx.lineTo(691,1067);ctx.strokeStyle='#c5bfd13d';ctx.stroke();
+  text('현재 순위',718,963,17,'#aab6cf',244);
+  text(record.rank.toLocaleString('ko-KR')+'위',716,1021,43,'#ffe1af',244);
+  text('참가 '+record.participants.toLocaleString('ko-KR')+'명 중',719,1060,15,'#bec7dc',242);
+  const metrics=[['평균 싱크로율',Number(record.accuracy).toFixed(2)+'%'],['최대 콤보','×'+record.maxCombo],['퍼펙트',record.perfects+' / 8']];
+  metrics.forEach(([label,value],i)=>{
+    const x=88+i*310;engraved(label,x,1133,15,280);text(value,x,1179,30,i===1?'#f2c2df':'#d1d9f3',280);
   });
-  ctx.strokeStyle='#b19cd13d';ctx.beginPath();ctx.moveTo(64,630);ctx.lineTo(1136,630);ctx.stroke();
-  text('참가 사번',67,672,17,'#aeb7cf');
-  text(record.employee,64,716,30,'#fff',560);
+  ctx.beginPath();ctx.moveTo(88,1208);ctx.lineTo(992,1208);ctx.strokeStyle='#b3bdd63b';ctx.stroke();
+  text('참가 사번',88,1244,15,'#9facc5');text(record.employee,87,1284,27,'#f2eff8',880);
   const time=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(record.rankedAt));
-  text('순위 확인 · '+time+' KST',67,756,15,'#a7abc3',645);
-  text('개인 최고 '+record.bestScore.toLocaleString('ko-KR')+'점 기준 순위',67,784,13,'#8f98b2',630);
-  panel(710,655,170,72,14);text('참여 인증',733,701,26,'#ffcae6',130);
-  glow(1015,710,120,'#d979bd2d');
-  ctx.drawImage(characters[0],895,627,115,145);
-  ctx.drawImage(characters[1],1011,627,108,145);
-  text('무궁이',922,790,14,'#e5aed4',90);text('무진이',1036,790,14,'#cfc6f5',90);
+  text('순위 확인 · '+time+' KST',88,1321,13,'#aab4ca',902);
+  engraved('개인 최고 '+record.bestScore.toLocaleString('ko-KR')+'점 기준 순위',88,1350,12,900);
+  // A restrained diagonal reflection makes the laminate read as a physical surface.
+  ctx.save();ctx.beginPath();ctx.moveTo(530,45);ctx.lineTo(790,45);ctx.lineTo(145,1395);ctx.lineTo(45,1395);ctx.closePath();
+  const gloss=ctx.createLinearGradient(45,45,1000,1395);gloss.addColorStop(0,'#ffffff06');gloss.addColorStop(.5,'#f1dcff09');gloss.addColorStop(1,'#ffffff00');
+  ctx.fillStyle=gloss;ctx.fill();ctx.restore();
+  ctx.restore();
   return canvas;
 }
 
