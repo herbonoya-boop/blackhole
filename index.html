@@ -1044,6 +1044,20 @@ body::before{transition:transform 3.6s cubic-bezier(.35,.05,.2,1),opacity 3.6s e
 #menu-title{font-size:clamp(43px,15vw,62px);line-height:1.05}
 .opening-story{font-size:11px;line-height:1.65}
 }
+@media(max-width:600px) and (orientation:portrait){
+.menu-content{padding-top:clamp(28px,5.5vh,52px);padding-bottom:24px;--opening-gap:clamp(28px,4.4vh,40px)}
+.menu-mission{margin:8px auto 16px}
+#menu-title{margin-top:12px}
+#menu-title .menu-word+.menu-word{margin-top:9px}
+.opening-story{margin-top:var(--opening-gap);line-height:1.9}
+#title-screen nav{margin-top:var(--opening-gap)}
+}
+@media(max-width:600px) and (orientation:portrait) and (max-height:650px){
+.menu-content{padding-top:20px;--opening-gap:23px}
+.menu-mission{margin-top:5px;margin-bottom:10px}
+#menu-title .menu-word+.menu-word{margin-top:7px}
+.opening-story{line-height:1.8}
+}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
