@@ -1078,6 +1078,7 @@ body::before{transition:transform 3.6s cubic-bezier(.35,.05,.2,1),opacity 3.6s e
 
 .arena #ballA>svg,.arena #ballA .character-afterimage{width:50px;height:55px;max-width:none;margin:0;display:block}
 .arena #ballB>svg,.arena #ballB .character-afterimage{width:44px;height:60px;max-width:none;margin:0;display:block}
+.arena[data-state='launching']>.action>#play{white-space:pre-line;line-height:1.5}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1771,7 +1772,7 @@ async function launchMission(){
   setState('launching');
   unlockMusic();
   play.disabled=true;
-  play.textContent='출격 준비 중';
+  play.textContent='출격\n대기중';
   gameHint.textContent='항로 탐색 중…';
   arena.dataset.launch='waiting';
   const later=(callback,delay)=>setTimeout(callback,delay);
