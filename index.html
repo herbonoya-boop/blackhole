@@ -918,6 +918,60 @@ body.mobile-optimized .arena[data-state="running"]>.action>#play{font-size:14px}
 .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open),body.mobile-optimized .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){font-size:9px;gap:2px;padding:0 2px}
 .hero .hud-controls button.secondary::before{width:11px;height:11px;flex-basis:11px}
 }
+
+/* Results stay readable on narrow and short screens. */
+#result{width:min(560px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:22px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;text-align:left}
+#result .result-header{position:relative;text-align:left;margin-bottom:14px}
+#result .result-header .tag{font-size:10px;margin:0 0 8px;line-height:1.4}
+#result .result-header h2{font-size:23px;line-height:1.4;margin:0}
+#result #judge{font-size:12px;line-height:1.4;margin:5px 0;letter-spacing:.12em}
+#result #round-summary{font-size:12px;line-height:1.5;margin:3px 0 0;overflow-wrap:anywhere}
+#result #seal{position:absolute;top:0;right:0;margin:0;padding:4px 6px;font-size:10px;line-height:1.3;border-width:1px;transform:none;border-radius:5px}
+#result .result-metrics{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:10px;padding:14px;border:1px solid #ffffff22;border-radius:12px;background:#050a1b4d;min-width:0}
+#result .final-score{margin:0;font:11px/1.5 "DNFBitBitv2",sans-serif;min-width:0}
+#result .final-score strong{font:clamp(27px,6vw,45px)/1.25 "DNFBitBitv2",sans-serif;margin-top:5px;color:#ffd166}
+#result .score{font:clamp(23px,5vw,38px)/1.3 "DNFBitBitv2",sans-serif;letter-spacing:-.035em;margin:0;min-width:0;text-align:right;white-space:nowrap}
+#result .score::before{content:"싱크로율";display:block;font:11px/1.5 "DNFBitBitv2",sans-serif;letter-spacing:0;color:#aeb4cd;margin-bottom:5px}
+#result[data-complete="true"] .score::before{content:"평균 싱크로율"}
+#result #result-quip{grid-column:1 / -1;font-size:16px;line-height:1.5;margin:4px 0 0;word-break:keep-all}
+#result #coin-standing{margin:12px 0 0;padding:12px;border-radius:10px}
+#result #coin-rank{font-size:25px;line-height:1.3}
+#result #coin-rank-quip{font-size:15px;line-height:1.5;margin:6px 0;overflow-wrap:anywhere}
+#result #coin-best-note{font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+#result #form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:stretch;text-align:left;margin-top:15px;min-width:0}
+#result #form>label{grid-column:1 / -1;display:grid;gap:6px;min-width:0;font:13px/1.4 "DNFBitBitv2",sans-serif}
+#result #employee{width:100%;min-width:0;padding:11px 12px;font-size:16px;line-height:1.3}
+#result #form button{width:100%;min-width:0;min-height:42px;margin:0;padding:10px 8px;font-size:13px;line-height:1.4;white-space:normal;overflow-wrap:anywhere;border-radius:9px}
+#result #stamp,#result #result-board{grid-column:1 / -1}
+#result #result-actions{margin-top:14px}
+#result[data-complete="true"] #result-actions{display:none}
+#result #notice{font-size:12px;line-height:1.6;margin:10px 0 0;word-break:keep-all}
+@media(max-width:360px){#result{padding:16px}#result .result-header h2{font-size:21px}#result .result-metrics{padding:11px;gap:8px}#result .final-score strong{font-size:27px}#result .score{font-size:23px}#result #form button{font-size:12px}}
+@media(orientation:landscape) and (max-height:600px){
+#result{padding:14px 16px;max-height:calc(100dvh - 16px)}
+#result[data-complete="true"][open]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);column-gap:14px;row-gap:8px;width:min(800px,calc(100% - 24px));align-items:start}
+#result[data-complete="true"] .result-header{grid-column:1 / -1;margin-bottom:0}
+#result .result-header .tag{font-size:9px;margin-bottom:3px}
+#result .result-header h2{font-size:19px;line-height:1.25}
+#result #judge{font-size:10px;margin:3px 0}
+#result #round-summary{font-size:10px;margin:2px 0}
+#result[data-complete="true"] .result-metrics{grid-column:1;grid-row:2;padding:10px;gap:8px}
+#result .final-score strong{font-size:30px}
+#result .score{font-size:25px}
+#result .score::before,#result .final-score{font-size:10px}
+#result[data-complete="true"] #coin-standing{grid-column:1;grid-row:3;margin:0;padding:9px}
+#result #coin-rank{font-size:22px}
+#result #coin-rank-quip{font-size:12px;line-height:1.45;margin:4px 0}
+#result #coin-best-note{font-size:10px}
+#result[data-complete="true"] #form{grid-column:2;grid-row:2 / span 3;margin:0;gap:6px}
+#result #form>label{font-size:11px;gap:4px}
+#result #employee{padding:7px 9px}
+#result #form button{min-height:33px;padding:7px 5px;font-size:11px}
+#result[data-complete="true"] #notice{grid-column:2;grid-row:5;margin:0;font-size:11px}
+}
+
+#result{position:fixed;top:calc(var(--result-viewport-top,0px) + var(--result-viewport-height,100dvh) / 2);bottom:auto;transform:translateY(-50%);margin:0 auto;max-height:calc(var(--result-viewport-height,100dvh) - 24px)}
+@media(orientation:landscape) and (max-height:600px){#result{max-height:calc(var(--result-viewport-height,100dvh) - 16px)}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1092,7 +1146,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 </svg>
 <div class="action"><button id="play" type="button">시작하기</button></div><p class="hint" id="game-hint" aria-live="polite">무궁이와 무진이의 도전을 시작하세요. <kbd>Space</kbd></p></section>
 <div class="steps"></div>
-<dialog class="result" id="result" aria-labelledby="result-title"><p class="tag">MISSION REPORT</p><h2 id="result-title">싱크로율</h2><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p id="result-quip" aria-live="polite"></p><p class="score"><span id="score" aria-live="polite"></span><span id="seal" class="stamp" hidden>등록 완료</span></p><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
+<dialog class="result" id="result" aria-labelledby="result-title"><div class="result-header"><p class="tag">MISSION REPORT</p><h2 id="result-title">싱크로율</h2><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><span id="seal" class="stamp" hidden>등록 완료</span></div><div class="result-metrics"><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p id="result-quip" aria-live="polite"></p><p class="score"><span id="score" aria-live="polite"></span></p></div><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
 <dialog class="result scoreboard" id="leaderboard" aria-labelledby="leaderboard-title">
 <p class="tag">HALL OF FAME</p><h2 id="leaderboard-title">무궁무진 스코어보드</h2>
 <p class="hint">8개 스테이지 · 사번별 최고 스코어 · TOP 100</p>
@@ -1819,6 +1873,7 @@ function activate(){
 }
 function showResult(){
   const complete=roundScores.length===8;
+  result.dataset.complete=String(complete);
   get('coin-standing').hidden=!complete||!stamped;
   get('result-quip').hidden=complete;
   get('result-title').textContent=complete?'8단계 평균 싱크로율':round+'단계 결과';
@@ -2095,6 +2150,18 @@ function setMobileOptimized(enabled){
 get('mobile-optimize').addEventListener('click',()=>setMobileOptimized(!mobileOptimized));
 get('menu-optimize').addEventListener('click',()=>setMobileOptimized(!mobileOptimized));
 window.addEventListener('resize',renderLayoutButtons);
+function syncResultViewport(){
+  const viewport=window.visualViewport;
+  if(!viewport) return;
+  document.documentElement.style.setProperty('--result-viewport-height',viewport.height+'px');
+  document.documentElement.style.setProperty('--result-viewport-top',viewport.offsetTop+'px');
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',syncResultViewport);
+  window.visualViewport.addEventListener('scroll',syncResultViewport);
+  syncResultViewport();
+}
+
 try{mobileOptimized=localStorage.getItem('blackhole-mobile-optimized')==='true';}catch{}
 document.body.classList.toggle('mobile-optimized',mobileOptimized);
 renderLayoutButtons();
