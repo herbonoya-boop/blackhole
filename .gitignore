@@ -1,0 +1,15 @@
+node_modules/
+public/
+.vercel/
+.env
+.env.*
+!.env.example
+work/
+*.zip
+*.psd
+*.ai
+*.eps
+*.jpg
+*.webp
+*.log
+coverage/

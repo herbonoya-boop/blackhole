@@ -791,6 +791,9 @@ animation:orbital-suction 2.3s .15s linear both
 
 #capture,#result-restart,#result-board{font-size:14px;padding:11px 14px}
 #result-board{white-space:nowrap}
+
+#network-notice{margin:6px auto;padding:10px 14px;max-width:700px;border:1px solid #e8b8ec66;border-radius:8px;background:#12162ce8;color:#ffdfef;font:14px/1.6 "DNFBitBitv2",sans-serif;text-align:center;z-index:5}
+#network-retry{padding:5px 12px;margin-left:8px;font:13px "DNFBitBitv2",sans-serif}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -908,7 +911,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 <main>
 <header><strong>동아쏘시오그룹</strong><span>조직문화 소통플랫폼 오픈 이벤트</span></header>
 <p id="orientation-tip" role="status">휴대폰을 가로로 돌리면 게임판이 더 크게 보여요.</p><section class="hero"><div class="tag">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</div><h1 aria-label="무궁무진 블랙홀"><span aria-hidden="true"><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">무</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">궁</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">무</span><span class="floating-letter" style="--float-delay:-1.14s;--float-duration:5.03s">진</span> <em><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">블</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">랙</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">홀</span></em></span></h1><div class="mission-code">E V E N T &nbsp; H O R I Z O N &nbsp; ∞</div><p class="sub">교차점에서 두 신호가 겹치는 순간, <strong>SPACE</strong>로 포착!</p></section>
-<section class="arena" data-state="ready" aria-label="블랙홀 게임"><div class="status hud">
+<div id="network-notice" role="status" hidden><span id="network-message"></span><button type="button" id="network-retry" hidden>다시 연결</button></div><section class="arena" data-state="ready" aria-label="블랙홀 게임"><div class="status hud">
 <div class="hud-controls"><span id="pause" hidden aria-hidden="true"></span><button type="button" id="sound" class="secondary" aria-pressed="true">음악 켜짐</button><button type="button" id="help-open" class="secondary">게임 방법</button><button type="button" id="fullscreen" class="secondary" aria-pressed="false">전체화면</button><button type="button" id="leaderboard-open" class="secondary">스코어보드</button></div>
 <div class="readouts"><div>STAGE <output id="round">1 / 8</output></div><div>SCORE <output id="total">0</output></div><div>COMBO <output id="combo">0</output></div></div>
 </div>
@@ -968,7 +971,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 <dialog class="result" id="result" aria-labelledby="result-title"><p class="tag">MISSION REPORT</p><h2 id="result-title">싱크로율</h2><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p id="result-quip" aria-live="polite"></p><p class="score"><span id="score" aria-live="polite"></span><span id="seal" class="stamp" hidden>등록 완료</span></p><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
 <dialog class="result scoreboard" id="leaderboard" aria-labelledby="leaderboard-title">
 <p class="tag">HALL OF FAME</p><h2 id="leaderboard-title">무궁무진 스코어보드</h2>
-<p class="hint">이 브라우저에 저장된 8개 스테이지 · 사번별 최고 스코어 · TOP 100</p>
+<p class="hint">8개 스테이지 · 사번별 최고 스코어 · TOP 100</p>
 <table><thead><tr><th scope="col">순위</th><th scope="col">사번</th><th scope="col">스코어</th><th scope="col">평균 싱크로율</th><th scope="col">콤보</th></tr></thead><tbody id="rankings"></tbody></table>
 <p id="ranking-empty" class="hint">첫 기록의 주인공이 되어보세요!</p>
 <p id="ranking-status" class="hint" role="status"></p>
@@ -995,6 +998,48 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 <div class="action"><button type="submit">준비 완료 · 출격!</button><button type="button" id="briefing-cancel" class="secondary">돌아가기</button></div></form>
 </dialog></main><script>
 const get = id => document.getElementById(id);
+const hosted=location.protocol==='https:'||location.protocol==='http:';
+let serverCoin=null,stagePeriod=0,networkRetry=null;
+const errorMessages={
+  NOT_CONFIGURED:'이벤트 서버를 준비하고 있어요. 잠시 후 다시 접속해 주세요.',
+  EVENT_CLOSED:'지금은 이벤트 참여 기간이 아닙니다.',
+  RATE_LIMITED:'잠시 쉬었다가 다시 도전해 주세요.',
+  INVALID_SESSION:'게임 연결이 만료됐어요. 새로하기로 다시 시작해 주세요.',
+  SESSION_EXPIRED:'게임 연결이 만료됐어요. 새로하기로 다시 시작해 주세요.',
+  INVALID_EMPLOYEE:'사번은 영문·숫자·밑줄·하이픈 1~30자로 입력해 주세요.',
+  UNKNOWN_EMPLOYEE:'참여 가능한 사번인지 확인해 주세요.',
+  ALREADY_SUBMITTED:'이미 다른 사번으로 등록된 기록입니다.',
+  INVALID_TIMING:'타이밍을 확인할 수 없어요. 새로하기로 다시 시작해 주세요.'
+};
+async function gameRequest(action,payload){
+  try{
+    const response=await fetch('/api/game?action='+action,{
+      method:payload?'POST':'GET',
+      headers:payload?{'Content-Type':'application/json'}:{},
+      credentials:'same-origin',
+      body:payload?JSON.stringify(payload):undefined,
+      signal:AbortSignal.timeout(12000)
+    });
+    const data=await response.json();
+    if(!response.ok){
+      const error=new Error(errorMessages[data.error]||'기록 서버에 연결하지 못했어요. 다시 시도해 주세요.');
+      error.code=data.error;
+      throw error;
+    }
+    return data;
+  }catch(error){
+    if(error.code) throw error;
+    throw new Error('서버 연결이 원활하지 않아요. 같은 기록으로 다시 시도할 수 있습니다.');
+  }
+}
+function networkNotice(message,retry){
+  get('network-message').textContent=message;
+  get('network-notice').hidden=!message;
+  get('network-retry').hidden=!retry;
+  networkRetry=retry;
+}
+get('network-retry').addEventListener('click',()=>networkRetry?.());
+
 const titleScreen=get('title-screen'), exitScreen=get('exit-screen');
 function enterMission(){
   document.body.classList.remove('mission-space');
@@ -1133,7 +1178,24 @@ try{
     records=[...best.values()];
   }
 }catch{}
-function renderRankings(){
+async function renderRankings(){
+  if(hosted){
+    get('ranking-status').textContent='전체 순위를 불러오는 중…';
+    try{
+      const data=await gameRequest('leaderboard');
+      get('rankings').replaceChildren();
+      for(const record of data.records){
+        const row=document.createElement('tr');
+        for(const value of [record.rank,record.employee,record.score,Number(record.accuracy).toFixed(2)+'%',record.combo]){
+          const cell=document.createElement('td');cell.textContent=String(value);row.append(cell);
+        }
+        get('rankings').append(row);
+      }
+      get('ranking-empty').hidden=data.records.length>0;
+      get('ranking-status').textContent='참가 '+data.participants.toLocaleString('ko-KR')+'명 · 최고 스코어 순';
+    }catch(error){get('ranking-status').textContent=error.message;}
+    return;
+  }
   const body=get('rankings');
   body.replaceChildren();
   const sorted=[...records].sort((a,b)=>finalScore(b.accuracy,b.combo,b.perfects)-finalScore(a.accuracy,a.combo,a.perfects)||b.accuracy-a.accuracy||b.combo-a.combo||a.employee.localeCompare(b.employee)).slice(0,100);
@@ -1148,7 +1210,20 @@ function renderRankings(){
   }
   get('ranking-empty').hidden=sorted.length>0;
 }
-function showCoinStanding(){
+async function showCoinStanding(){
+  if(hosted){
+    const saved=await gameRequest('submit',{coinId:serverCoin,employee:participant});
+    points=saved.score;
+    get('final-score').textContent=points.toLocaleString('ko-KR');
+    get('coin-rank').textContent=saved.rank+'위 / '+saved.participants+'명';
+    get('coin-rank-quip').textContent=saved.rank===1?'우주 서열 정리 완료! 블랙홀의 주인은 당신!':
+      saved.rank<=10?'우주 특공대 합격! 손가락에 추진기 달았나요?':
+      saved.rank<=100?'TOP 100 착륙! 뒤에서 우주선 옵니다!':'아직 우주 예열 중! 다음 도전엔 순위 역주행!';
+    get('coin-best-note').textContent=saved.bestScore>saved.score?
+      '이번 '+saved.score.toLocaleString('ko-KR')+'점 · 최고 '+saved.bestScore.toLocaleString('ko-KR')+'점 기준 순위':
+      '최고 기록 '+saved.bestScore.toLocaleString('ko-KR')+'점 · 서버 등록 완료';
+    return;
+  }
   const average=roundScores.reduce((sum,value)=>sum+value,0)/8;
   const previous=records.find(item=>item.employee===participant);
   const previousPoints=previous?finalScore(previous.accuracy,previous.combo,previous.perfects):-1;
@@ -1315,6 +1390,7 @@ function updateHud(){
 function ready(){
   cancelAnimationFrame(frame);
   for(const id of ['ballA','ballB']) get(id).style.opacity='';
+  serverCoin=null;stagePeriod=0;networkNotice('',null);
   round=1;roundScores=[];maxCombo=0;perfects=0;streak=0;points=0;
   employee.value='';participant='';
   updateHud();
@@ -1336,7 +1412,7 @@ function ready(){
 }
 ready();
 function tick(now){
-  phase=offset+(now-started)*turn/(period/(1+(round-1)*.012));
+  phase=offset+(now-started)*turn/stagePeriod;
   paint(phase);
   frame=requestAnimationFrame(tick);
 }
@@ -1348,7 +1424,20 @@ function clearStamp(){
   capture.disabled=true;
   get('notice').textContent=defaultNotice;
 }
-function launchMission(){
+async function launchMission(){
+  if(hosted&&!serverCoin){
+    setState('connecting');play.disabled=true;
+    networkNotice('도전 준비 중…',null);
+    try{
+      const created=await gameRequest('create',{});
+      serverCoin=created.coinId;
+      networkNotice('',null);
+    }catch(error){
+      setState('ready');play.disabled=false;
+      networkNotice(error.message,launchMission);
+      return;
+    }
+  }
   setState('launching');
   unlockMusic();
   play.disabled=true;
@@ -1380,7 +1469,21 @@ function launchMission(){
     start();
   },5500);
 }
-function start(){
+async function start(){
+  if(state==='connecting') return;
+  let serverStage=null;
+  if(hosted){
+    setState('connecting');play.disabled=true;
+    networkNotice('스테이지 연결 중…',null);
+    try{
+      serverStage=await gameRequest('start',{coinId:serverCoin,stage:round});
+      networkNotice('',null);
+    }catch(error){
+      setState('ready');play.disabled=false;
+      networkNotice(error.message,start);
+      return;
+    }
+  }
   cancelAnimationFrame(frame);
   for(const id of ['ballA','ballB']) get(id).style.opacity='';
   if(result.open) result.close();
@@ -1390,7 +1493,8 @@ function start(){
   gameHint.innerHTML='중앙에서 겹치는 순간 <kbd>Space</kbd> 또는 지금 멈추기';
   play.disabled=false;
   play.textContent='지금 멈추기';
-  offset=.85+Math.random()*.65;
+  offset=serverStage?serverStage.offset:.85+Math.random()*.65;
+  stagePeriod=serverStage?serverStage.period:period/(1+(round-1)*.012);
   phase=offset;
   started=performance.now();
   paint(phase);
@@ -1436,6 +1540,7 @@ function spiralIntoBlackHole(){
 }
 function stop(){
   cancelAnimationFrame(frame);
+  const elapsedMs=(phase-offset)*stagePeriod/turn;
   const distance=pairDistance(phase);
   const verdict=distance<=7?'perfect':distance<=26?'good':'miss';
   const hit=verdict==='perfect';
@@ -1506,7 +1611,34 @@ function stop(){
       tone(91,now+.075,.35,.2,'sine');
     }
   }
-  setTimeout(()=>{
+  const finishPayload=hosted?{coinId:serverCoin,stage:round,elapsedMs}:null;
+  const pendingSave=hosted?gameRequest('finish',finishPayload).then(data=>({data}),error=>({error})):Promise.resolve({});
+  async function revealResult(){
+    let saved=await pendingSave;
+    if(saved.error){
+      networkNotice(saved.error.message,async()=>{
+        networkNotice('같은 기록으로 다시 저장 중…',null);
+        try{
+          const data=await gameRequest('finish',finishPayload);
+          applyServerResult(data);
+          networkNotice('',null);
+          displayResult();
+        }catch(error){networkNotice(error.message,()=>revealResult());}
+      });
+      return;
+    }
+    if(saved.data) applyServerResult(saved.data);
+    displayResult();
+  }
+  function applyServerResult(data){
+    roundScores[round-1]=Number(data.accuracy);
+    points=data.score;streak=data.combo;maxCombo=data.maxCombo;perfects=data.perfects;
+    score=Number(data.accuracy).toFixed(2)+'%';
+    get('score').textContent=score;
+    get('final-score').textContent=points.toLocaleString('ko-KR');
+    updateHud();
+  }
+  function displayResult(){
     setState('finished');
       gameHint.textContent=hit?'워프 완료 · 미션 성공':'';
     play.textContent='결과 보기';
@@ -1520,7 +1652,8 @@ function stop(){
       result.dataset.tier=average>=90?'near':average>=70?'high':average>=50?'mid':average>=20?'low':'oops';
     }
     showResult();
-  },hit?3300:1500);
+  }
+  setTimeout(revealResult,hit?3300:1500);
 }
 function activate(){
   if(state==='running') stop();
@@ -1590,7 +1723,7 @@ document.addEventListener('keydown',event=>{
   if(!event.repeat) activate();
 });
 employee.addEventListener('input',()=>{employee.setCustomValidity('');clearStamp();get('coin-standing').hidden=true;});
-get('form').addEventListener('submit',event=>{
+get('form').addEventListener('submit',async event=>{
   event.preventDefault();
   if(state!=='finished'||roundScores.length!==8||get('stamp').disabled) return;
   stamped=employee.value.trim();
@@ -1600,10 +1733,16 @@ get('form').addEventListener('submit',event=>{
     return;
   }
   participant=stamped;
-  showCoinStanding();
+  get('stamp').disabled=true;employee.readOnly=true;
+  notice.hidden=false;notice.textContent='점수를 등록하고 있어요…';
+  try{
+    await showCoinStanding();
+  }catch(error){
+    get('stamp').disabled=false;employee.readOnly=false;stamped='';
+    notice.textContent=error.message;
+    return;
+  }
   get('coin-standing').hidden=false;
-  get('stamp').disabled=true;
-  employee.readOnly=true;
   get('seal').hidden=false;
   capture.disabled=false;
   get('notice').textContent='';
