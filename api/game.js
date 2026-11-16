@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && action === 'config') {
       if (!configured) return res.status(200).json({ configured: false, accepting: false });
       const event = await rpc('bh_config', { p_slug: slug });
-      return res.status(200).json({ ...event, configured: Boolean(event), accepting: event?.accepting === true });
+      return res.status(200).json({ ...event, configured: true, accepting: event?.accepting === true });
     }
     if (!configured) throw new GameError('NOT_CONFIGURED', 503);
     if (req.method === 'GET' && action === 'leaderboard') {

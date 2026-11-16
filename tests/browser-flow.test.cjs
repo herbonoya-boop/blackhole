@@ -4,9 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-test('hosted entry, eight server stages, failed-save retry and final employee submission', async () => {
+for(const configured of [true,false]) test(configured?'hosted server stages and saved-record retry':'hosted preview plays eight stages without a database', async () => {
   const nodes = new Map(), timers = [], requests = [];
-  const classList = { add() {}, remove() {}, contains() { return false; } };
+  const classList = { add() {}, remove() {}, contains() { return false; }, toggle() {} };
   function node(id) {
     if (!nodes.has(id)) nodes.set(id, {
       hidden: false, open: false, value: '', disabled: false, dataset: {}, style: { setProperty() {} }, classList,
@@ -21,7 +21,7 @@ test('hosted entry, eight server stages, failed-save retry and final employee su
   let failedOnce = false, serverScore = 0;
   const context = vm.createContext({
     console, location: { protocol: 'https:' }, screen: {}, AbortSignal,
-    performance: { now: () => 1000 }, localStorage: { getItem: () => null },
+    performance: { now: () => 1000 }, localStorage: { getItem: () => null, setItem() {} },
     document: { body: { classList }, fonts: { ready: { then() {} } }, getElementById: node,
       addEventListener() {}, createElement: () => ({ append() {} }) },
     window: { addEventListener() {} },
@@ -36,6 +36,7 @@ test('hosted entry, eight server stages, failed-save retry and final employee su
         return { ok: false, json: async () => ({ error: 'DATABASE_ERROR' }) };
       }
       let data;
+      if(action === 'config') data = { configured };
       if (action === 'create') data = { coinId: '11111111-1111-4111-8111-111111111111' };
       if (action === 'start') data = { offset: 1.1, period: 2300 };
       if (action === 'finish') {
@@ -51,14 +52,15 @@ test('hosted entry, eight server stages, failed-save retry and final employee su
   const run = code => vm.runInContext(code, context);
   const settle = () => new Promise(resolve => setImmediate(resolve));
   await run('launchMission()');
-  assert.equal(requests[0].action, 'create');
+  assert.equal(requests[0].action, 'config');
+  assert.equal(requests.some(item=>item.action==='create'),configured);
   while (timers.length) { await timers.shift()(); await settle(); }
   assert.equal(run('state'), 'running');
   for (let stage = 1; stage <= 8; stage++) {
     run('tick(1000+(Math.PI-offset)*stagePeriod/turn);stop();');
     await settle();
     await timers.shift()();
-    if (stage === 1) {
+    if (configured && stage === 1) {
       assert.equal(node('network-notice').hidden, false);
       assert.equal(run('state'), 'settling');
       await run('networkRetry()');
@@ -73,7 +75,8 @@ test('hosted entry, eight server stages, failed-save retry and final employee su
   assert.equal(node('stamp').disabled, true);
   assert.equal(node('employee').readOnly, true);
   assert.equal(node('coin-standing').hidden, false);
-  assert.equal(requests.at(-1).body.employee, '000001');
+  if(configured)assert.equal(requests.at(-1).body.employee, '000001');
+  else{assert.equal(run('records[0].employee'),'000001');assert.equal(requests.some(item=>item.action==='finish'),false);assert.equal(node('preview-badge').hidden,false);}
   const failures = requests.filter(item => item.action === 'finish' && item.body.stage === 1);
-  assert.deepEqual(failures[0].body, failures[1].body);
+  if(configured)assert.deepEqual(failures[0].body, failures[1].body);
 });

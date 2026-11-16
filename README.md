@@ -17,7 +17,7 @@ npm run dev
 node --env-file=.env scripts/dev.cjs
 ```
 
-`index.html`을 직접 열면 기존의 브라우저 저장 방식으로 미리 볼 수 있습니다. HTTP/HTTPS에서 실행하면 Vercel API와 Supabase를 사용합니다. 서버 설정이 없으면 이벤트 준비 안내를 표시합니다.
+`index.html`을 직접 열면 기존의 브라우저 저장 방식으로 미리 볼 수 있습니다. HTTP/HTTPS에서 실행하면 Vercel API와 Supabase를 사용합니다. 서버 설정이 없으면 연습 모드로 전환해 게임을 플레이할 수 있습니다. 연습 기록은 해당 브라우저에만 저장하며, 실제 이벤트의 전체 순위와 분리합니다. Supabase가 연결된 뒤 행사 기간이 닫혀 있는 경우에는 공식 접수를 계속 차단합니다.
 
 ## 점수와 순위
 
