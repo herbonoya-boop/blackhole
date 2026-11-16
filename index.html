@@ -2067,7 +2067,11 @@ async function createCertificate(record){
   text('무궁이',313,795,20,'#edb4d8',160);text('무진이',636,795,20,'#c9c5f0',160);
   // Engraved seal, foil border and a pale raised highlight.
   round(337,822,406,70,18,'#e6d8f110','#e7c5e0a6');
-  engraved('참여 인증',419,868,32,250);
+  ctx.font='32px "DNFBitBitv2", sans-serif';
+  const sealText='참여 인증',sealMetrics=ctx.measureText(sealText);
+  const sealX=337+(406-sealMetrics.width)/2;
+  const sealY=822+70/2+(sealMetrics.actualBoundingBoxAscent-sealMetrics.actualBoundingBoxDescent)/2;
+  engraved(sealText,sealX,sealY,32,360);
   round(86,925,908,170,22,'#0a1025b5','#c2b8df4d');
   engraved('최종 스코어',112,963,17,470);
   text(record.score.toLocaleString('ko-KR'),106,1051,74,'#ffd9ef',548);
