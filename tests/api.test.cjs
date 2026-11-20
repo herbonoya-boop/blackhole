@@ -21,6 +21,10 @@ test('API keeps service key private and rejects invalid requests', async () => {
       calls.push({ url, body: JSON.parse(options.body), headers: options.headers });
       return { ok: true, json: async () => ({ coinId: '11111111-1111-4111-8111-111111111111' }) };
     };
+    process.env.SUPABASE_URL = ' https://project.supabase.co/rest/v1/ ';
+    await request('GET', 'config');
+    assert.equal(calls.at(-1).url, 'https://project.supabase.co/rest/v1/rpc/bh_config');
+    calls.length = 0;
     const headers = { origin: 'https://game.example.com', 'content-type': 'application/json' };
     assert.equal((await request('POST', 'create', {}, { ...headers, origin: 'https://other.example.com' })).code, 403);
     const created = await request('POST', 'create', {}, headers);
