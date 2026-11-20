@@ -82,7 +82,7 @@ module.exports = async function handler(req, res) {
     const status = error instanceof GameError ? error.status : 400;
     const code = error instanceof GameError ? error.code : 'INVALID_REQUEST';
     const result = { error: code };
-    if (req.method === 'GET' && req.query?.action === 'config' && error.diagnostic) {
+    if (req.method === 'GET' && error.diagnostic) {
       result.diagnostic = error.diagnostic;
     }
     return res.status(status).json(result);
