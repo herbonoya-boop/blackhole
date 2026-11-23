@@ -1166,6 +1166,17 @@ body.mobile-rendering .mobile-happy{display:block}
 body.mobile-rendering .arena[data-sad="true"] .mobile-happy{display:none}
 body.mobile-rendering .arena[data-sad="true"] .mobile-sad{display:block}
 body.mobile-rendering.precision-play #ambient-stars i,body.mobile-rendering.precision-play .meteor,body.mobile-rendering.precision-play #stars,body.mobile-rendering.precision-play #stars *,body.mobile-rendering.precision-play #planets *,body.mobile-rendering.precision-play #black-hole *,body.mobile-rendering.precision-play #ribbon-depth-back,body.mobile-rendering.precision-play #ribbon-depth-side,body.mobile-rendering.precision-play #track-rim,body.mobile-rendering.precision-play #rail,body.mobile-rendering.precision-play #line{animation-play-state:paused!important}
+
+#final-celebration{position:fixed;inset:0;z-index:80;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#3c1a5538,transparent 65%);display:grid;place-items:center}
+#final-celebration[hidden]{display:none}
+#final-fireworks{position:absolute;inset:0;width:100%;height:100%}
+.finale-banner{position:relative;text-align:center;padding:22px 36px;border-top:1px solid #ffdca8a0;border-bottom:1px solid #ff9bd78c;background:linear-gradient(90deg,transparent,#100b26e8 22%,#100b26e8 78%,transparent);width:min(720px,95vw);animation:finale-reveal .55s cubic-bezier(.18,.8,.25,1) both;font-family:"DNFBitBitv2",sans-serif}
+.finale-banner p{margin:0;color:#ffceec;font-size:clamp(18px,3vw,28px);text-shadow:0 2px 0 #3a1746}
+.finale-banner strong{display:block;margin-top:15px;font-size:clamp(48px,9vw,88px);color:#fff1b9;text-shadow:0 4px 0 #8e4161,0 0 25px #ffc48850;font-variant-numeric:tabular-nums}
+.finale-banner span{display:block;margin-top:12px;color:#dbd3eb;font-size:14px}
+@keyframes finale-reveal{from{opacity:0;transform:scale(.7) translateY(15px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@media(max-height:450px){.finale-banner{padding:14px 24px}.finale-banner strong{font-size:54px;margin-top:9px}.finale-banner span{margin-top:8px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.finale-banner{animation:none}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1368,7 +1379,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 <p class="hint">최종 점수 · 싱크로율 합계 × 10 + 최대 콤보 보너스 + 퍼펙트 보너스</p>
 <p class="preview-notice">지금은 연습 모드입니다. 자유롭게 플레이할 수 있으며, 기록은 이 기기에만 저장됩니다.</p><p class="prize-notice">마지막 결과에서 입력한 사번을 기준으로 최종 순위 TOP 100에 선정된 분께 선물을 드립니다.<br><strong>결과 화면에서 사번을 정확히 입력해 주세요.</strong></p><form id="briefing-form">
 <div class="action"><button type="submit">준비 완료 · 출격!</button><button type="button" id="briefing-cancel" class="secondary">돌아가기</button></div></form>
-</dialog></main><script>
+</dialog></main><div id="final-celebration" hidden aria-hidden="true"><canvas id="final-fireworks"></canvas><div class="finale-banner"><p>8단계 완료!</p><strong id="finale-points">0</strong><span>최종 스코어</span></div></div><script>
 const get = id => document.getElementById(id);
 const hosted=location.protocol==='https:'||location.protocol==='http:';
 let strictJudgement=!hosted;
@@ -1754,6 +1765,7 @@ const defaultNotice='';
 const pause=get('pause'), total=get('total'), combo=get('combo');
 const arena=play.closest('.arena'), gameHint=get('game-hint'), sound=get('sound');
 let state='ready', started=0, phase=.92, offset=.92, frame=0, score='', stamped='';
+let finaleFrame=0,finaleTimer,finaleGeneration=0;
 let points=0, streak=0, pausedAt=0, round=1, maxCombo=0, perfects=0, roundScores=[];
 let audio, master, musicTimer, nextBeat, beatIndex=0, musicEnabled=true;
 const melody=[72,75,79,82,79,75,70,74,77,81,77,74,68,72,75,79,75,72,70,74,77,81,77,74];
@@ -1851,6 +1863,7 @@ function updateHud(){
 
 }
 function ready(){
+  cancelFinalCelebration();
   certifiedStanding=null;certificateRun++;
   cancelAnimationFrame(frame);
   for(const id of ['ballA','ballB']) get(id).style.opacity='';
@@ -2018,6 +2031,71 @@ function spiralIntoBlackHole(){
   }
   frame=requestAnimationFrame(suction);
 }
+function cancelFinalCelebration(){
+  finaleGeneration++;
+  cancelAnimationFrame(finaleFrame);
+  clearTimeout(finaleTimer);
+  get('final-celebration').hidden=true;
+}
+function finalCelebration(onComplete){
+  cancelFinalCelebration();
+  const canvas=get('final-fireworks'),context=canvas.getContext?.('2d');
+  if(!context){onComplete();return;}
+  const generation=finaleGeneration;
+  const mobile=document.body.classList.contains('mobile-rendering');
+  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const width=window.innerWidth,height=window.innerHeight,dpr=Math.min(window.devicePixelRatio||1,mobile?1:1.5);
+  canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+  context.setTransform(dpr,0,0,dpr,0,0);
+  get('finale-points').textContent=points.toLocaleString('ko-KR');
+  get('final-celebration').hidden=false;
+  const colors=['#ff9bdf','#ffe2a1','#bcacff','#fff6da'];
+  const bursts=[[.2,.32,0],[.8,.28,.18],[.5,.18,.48],[.15,.62,.8],[.85,.57,1.02],[.48,.34,1.3]];
+  const particles=[];
+  if(!reduced){
+    const count=mobile?20:38;
+    for(const [x,y,delay] of bursts){
+      for(let i=0;i<count;i++){
+        const angle=i*Math.PI*2/count,speed=(mobile?65:100)+Math.random()*Math.min(width,height)*.25;
+        particles.push({x:x*width,y:y*height,delay,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,color:colors[i%colors.length],life:.65+Math.random()*.4});
+      }
+    }
+  }
+  if(audio?.state==='running'&&musicEnabled){
+    const now=audio.currentTime;
+    [72,76,79,84].forEach((note,i)=>tone(note,now+i*.13,.48,.18,'triangle'));
+    tone(48,now,.7,.2,'sine');
+    tone(88,now+.6,.7,.16,'sine');
+  }
+  const began=performance.now();
+  function draw(now){
+    if(generation!==finaleGeneration) return;
+    const elapsed=(now-began)/1000;
+    context.clearRect(0,0,width,height);
+    context.lineWidth=mobile?1.7:2.2;
+    context.lineCap='round';
+    for(const particle of particles){
+      const age=elapsed-particle.delay;
+      if(age<0||age>particle.life) continue;
+      const x=particle.x+particle.vx*age,y=particle.y+particle.vy*age+85*age*age;
+      context.globalAlpha=(1-age/particle.life)**.65;
+      context.strokeStyle=particle.color;
+      context.beginPath();context.moveTo(x-particle.vx*.025,y-particle.vy*.025);context.lineTo(x,y);context.stroke();
+    }
+    context.globalAlpha=1;
+    if(elapsed<2.25) finaleFrame=requestAnimationFrame(draw);
+  }
+  if(!reduced)finaleFrame=requestAnimationFrame(draw);
+  finaleTimer=setTimeout(()=>{
+    if(generation!==finaleGeneration) return;
+    cancelFinalCelebration();
+    onComplete();
+  },reduced?1200:2250);
+}
+function stopHaptic(event){
+  if(event?.pointerType!=='touch'&&!(event?.type==='click'&&mobileRenderMedia.matches)) return;
+  try{if(typeof navigator!=='undefined')navigator.vibrate?.(16);}catch{}
+}
 function inputTime(event){
   const now=performance.now();
   let timestamp=event?.timeStamp;
@@ -2030,6 +2108,7 @@ function stop(event){
   cancelAnimationFrame(frame);
   phase=offset+(inputTime(event)-started)*turn/stagePeriod;
   paint(phase);
+  stopHaptic(event);
   const elapsedMs=(phase-offset)*stagePeriod/turn;
   const distance=pairDistance(phase);
   const verdict=distance<=7?'perfect':distance<=26?'good':'miss';
@@ -2143,7 +2222,12 @@ function stop(event){
       get('coin-standing').hidden=true;
       result.dataset.tier=average>=90?'near':average>=70?'high':average>=50?'mid':average>=20?'low':'oops';
     }
-    showResult();
+    if(round===8){
+      setState('celebrating');play.disabled=true;
+      finalCelebration(()=>{
+        setState('finished');play.disabled=false;showResult();
+      });
+    }else showResult();
   }
   setTimeout(revealResult,hit?3300:1500);
 }

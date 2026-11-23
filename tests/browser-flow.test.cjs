@@ -26,7 +26,7 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
       addEventListener() {}, createElement: () => ({ append() {} }) },
     window: { addEventListener() {}, matchMedia() { return { matches: false, addEventListener() {} }; } },
     setTimeout(callback) { timers.push(callback); }, requestAnimationFrame: () => 1, cancelAnimationFrame() {},
-    setInterval() {}, clearInterval() {},
+    setInterval() {}, clearInterval() {}, clearTimeout() {},
     fetch: async (url, options) => {
       const action = url.split('action=')[1];
       const body = options.body ? JSON.parse(options.body) : null;
