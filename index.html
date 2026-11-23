@@ -1177,6 +1177,36 @@ body.mobile-rendering.precision-play #ambient-stars i,body.mobile-rendering.prec
 @keyframes finale-reveal{from{opacity:0;transform:scale(.7) translateY(15px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @media(max-height:450px){.finale-banner{padding:14px 24px}.finale-banner strong{font-size:54px;margin-top:9px}.finale-banner span{margin-top:8px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){.finale-banner{animation:none}}
+
+/* Landscape gameplay uses the whole viewport; controls float above the scene. */
+@media(orientation:landscape) and (max-height:650px){
+body.mobile-rendering:not(.menu-mode){width:100%;height:var(--game-height,100dvh);min-height:0;overflow:hidden}
+body.mobile-rendering:not(.menu-mode) main{position:fixed;inset:0;width:100%;height:var(--game-height,100dvh);min-height:0;max-width:none;margin:0;padding:0;display:block;overflow:hidden}
+body.mobile-rendering:not(.menu-mode) main>header,body.mobile-rendering:not(.menu-mode) main>.steps{display:none}
+body.mobile-rendering:not(.menu-mode) .hero{position:absolute;top:max(4px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));width:auto;height:34px;margin:0;padding:0;z-index:5;flex-direction:row;justify-content:space-between;gap:8px}
+body.mobile-rendering:not(.menu-mode) .hero h1{font-size:18px;line-height:1.1;margin:0;flex:0 0 auto}
+body.mobile-rendering:not(.menu-mode) .hero>.hud-controls{width:min(56vw,440px);max-width:none;flex:0 1 440px;gap:4px}
+body.mobile-rendering:not(.menu-mode) .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){height:30px;min-height:30px;font-size:9px;padding:0 3px;gap:3px}
+body.mobile-rendering:not(.menu-mode) .arena{position:absolute;inset:0;width:100%;height:100%;min-height:0;padding:0;margin:0;display:block;border:0;border-radius:0;overflow:hidden}
+body.mobile-rendering:not(.menu-mode) .arena>svg{position:absolute;inset:0;width:100%;height:100%;max-width:none;min-height:0;margin:0;display:block}
+body.mobile-rendering:not(.menu-mode) .arena>.hud{position:absolute;top:calc(max(4px,env(safe-area-inset-top)) + 40px);left:50%;transform:translateX(-50%);width:min(420px,60vw);height:48px;min-height:0;margin:0;z-index:4}
+body.mobile-rendering:not(.menu-mode) .arena .readouts{padding:6px 8px;border-radius:12px;height:48px;box-shadow:0 4px 12px #0003,inset 0 1px 0 #ffffff25}
+body.mobile-rendering:not(.menu-mode) .arena .readouts .hud-tile>span{font-size:8px;margin-bottom:3px}
+body.mobile-rendering:not(.menu-mode) .arena .readouts output{font-size:21px;line-height:1}
+body.mobile-rendering:not(.menu-mode) .arena>.action{position:absolute;bottom:max(7px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:64px;height:60px;min-height:0;margin:0;z-index:5}
+body.mobile-rendering:not(.menu-mode) #play{width:58px;height:58px;min-height:58px;padding:5px;font-size:13px;line-height:1.3}
+body.mobile-rendering:not(.menu-mode) .arena[data-state="running"]>.action>#play{font-size:14px}
+body.mobile-rendering:not(.menu-mode) .arena>.hint{display:none}
+}
+@media(orientation:landscape) and (max-height:350px){
+body.mobile-rendering:not(.menu-mode) .hero h1{font-size:15px}
+body.mobile-rendering:not(.menu-mode) .hero>.hud-controls{width:64vw;flex-basis:64vw}
+body.mobile-rendering:not(.menu-mode) .arena>.hud{top:40px;height:42px}
+body.mobile-rendering:not(.menu-mode) .arena .readouts{height:42px;padding:4px 8px}
+body.mobile-rendering:not(.menu-mode) .arena .readouts output{font-size:18px}
+body.mobile-rendering:not(.menu-mode) .arena>.action{height:50px}
+body.mobile-rendering:not(.menu-mode) #play{width:48px;height:48px;min-height:48px;font-size:11px}
+}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1507,6 +1537,8 @@ function fitOpeningMission(){
   if(measured) mission.style.fontSize=(18*width/measured).toFixed(2)+'px';
 }
 function fitGameViewport(){
+  const viewportHeight=window.visualViewport?.height||window.innerHeight;
+  document.documentElement.style.setProperty('--game-height',viewportHeight+'px');
   const screen=document.querySelector('.arena>svg');
   if(screen) screen.setAttribute('viewBox',(mobileOptimized||window.innerWidth<=900)?'90 40 720 275':'70 35 760 285');
 }
@@ -1568,6 +1600,7 @@ fullscreen.addEventListener('click',async()=>{
 });
 function fullscreenChanged(){
   syncFullscreen();
+  fitGameViewport();
   if(!document.fullscreenElement&&!document.webkitFullscreenElement){
     try{screen.orientation?.unlock?.();}catch{}
   }
@@ -2546,6 +2579,7 @@ function syncResultViewport(){
 }
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize',syncResultViewport);
+  window.visualViewport.addEventListener('resize',fitGameViewport);
   window.visualViewport.addEventListener('scroll',syncResultViewport);
   syncResultViewport();
 }
