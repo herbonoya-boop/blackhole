@@ -1207,6 +1207,83 @@ body.mobile-rendering:not(.menu-mode) .arena .readouts output{font-size:18px}
 body.mobile-rendering:not(.menu-mode) .arena>.action{height:50px}
 body.mobile-rendering:not(.menu-mode) #play{width:48px;height:48px;min-height:48px;font-size:11px}
 }
+
+/* Mobile dialogs use a static glass surface and predictable content spacing. */
+.result-overview{min-width:0;display:flex;flex-direction:column;gap:14px}
+#result .result-overview .result-header{margin-bottom:0}
+@media(orientation:landscape) and (max-height:600px){
+#result[data-complete="true"] .result-overview{grid-column:1;grid-row:1}
+#result[data-complete="true"] #form{grid-column:2;grid-row:1}
+#result[data-complete="true"] #notice{grid-column:2;grid-row:2}
+}
+body.mobile-rendering dialog.result,body.mobile-rendering #result[open]{position:fixed;top:calc(var(--result-viewport-top,0px) + min(var(--result-viewport-height,100dvh),100dvh) / 2);bottom:auto;transform:translateY(-50%);margin:0 auto;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important;background:linear-gradient(145deg,#262239f5,#101322fa);box-shadow:0 12px 32px #0008,inset 0 1px 0 #ffffff20;border-color:#d5a6dd88;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-height:calc(min(var(--result-viewport-height,100dvh),100dvh) - 24px);scroll-padding:16px}
+body.mobile-rendering dialog.result::backdrop{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#030610ba}
+body.mobile-rendering #result{background:linear-gradient(145deg,color-mix(in srgb,var(--panel-tone,#101322) 28%,#171526),#101322fa);padding:18px;width:min(540px,calc(100% - 24px))}
+body.mobile-rendering #result[open]{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+body.mobile-rendering #result .result-overview{display:flex;flex-direction:column;gap:14px;grid-column:auto;grid-row:auto}
+body.mobile-rendering #result .result-header{margin:0;grid-column:auto;grid-row:auto;min-width:0}
+body.mobile-rendering #result .result-header h2{font-size:21px;line-height:1.4;word-break:keep-all}
+body.mobile-rendering #result .result-header .tag{margin:0 0 6px;font-size:9px}
+body.mobile-rendering #result #judge{margin:5px 0;font-size:11px}
+body.mobile-rendering #result #round-summary{margin:0;font-size:11px;line-height:1.65;word-break:keep-all}
+body.mobile-rendering #result .result-metrics{grid-column:auto;grid-row:auto;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:12px;align-items:start}
+body.mobile-rendering #result .final-score{order:1;font-size:10px}
+body.mobile-rendering #result .final-score strong{font-size:30px;line-height:1.2;margin-top:5px;white-space:nowrap}
+body.mobile-rendering #result .score{order:2;font-size:26px;line-height:1.35;text-align:right}
+body.mobile-rendering #result .score::before{font-size:10px;line-height:1.5;margin-bottom:5px}
+body.mobile-rendering #result #result-quip{order:3;grid-column:1 / -1;margin:0;font-size:14px;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}
+body.mobile-rendering #result #coin-standing{grid-column:auto;grid-row:auto;margin:0;padding:12px}
+body.mobile-rendering #result #coin-rank{font-size:23px}
+body.mobile-rendering #result #coin-rank-quip{font-size:13px;line-height:1.6;margin:6px 0}
+body.mobile-rendering #result #coin-best-note{font-size:10px;line-height:1.6;margin:0}
+body.mobile-rendering #result #result-actions{margin:0;gap:8px}
+body.mobile-rendering #result #result-actions button{width:100%;min-height:44px;padding:11px 12px;font-size:14px;line-height:1.5}
+body.mobile-rendering #result #form{grid-column:auto;grid-row:auto;margin:0;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+body.mobile-rendering #result #form>label{font-size:12px;line-height:1.5;gap:7px}
+body.mobile-rendering #result #employee{padding:11px 10px;font-size:16px;min-height:44px}
+body.mobile-rendering #result #form button{min-height:44px;padding:10px 8px;font-size:12px;line-height:1.5;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+body.mobile-rendering #result #notice{grid-column:1 / -1;grid-row:auto;margin:0;font-size:11px;line-height:1.65}
+body.mobile-rendering #result:has(#seal:not([hidden])) .result-header{padding-right:72px}
+body.mobile-rendering #help,body.mobile-rendering #briefing,body.mobile-rendering #leaderboard{padding:18px;width:min(600px,calc(100% - 24px));line-height:1.6}
+body.mobile-rendering :is(#help,#briefing,#leaderboard) h2{font-size:24px;line-height:1.4;margin:0 0 12px}
+body.mobile-rendering #help .help-intro,body.mobile-rendering #briefing .briefing-intro{font-size:14px;line-height:1.8;margin:12px 0}
+body.mobile-rendering #help .help-steps{font-size:16px;line-height:1.6;margin:14px 0;padding-left:22px}
+body.mobile-rendering #help .help-steps li{margin:14px 0}
+body.mobile-rendering #help .help-steps p{font-size:13px;line-height:1.8}
+body.mobile-rendering #briefing ul{font-size:14px;line-height:1.8;margin:14px 0;padding-left:21px}
+body.mobile-rendering #briefing li+li{margin-top:12px}
+body.mobile-rendering #briefing-form{margin-top:16px}
+body.mobile-rendering :is(#help-close,#leaderboard-close){margin:18px auto 0;min-height:44px}
+body.mobile-rendering #leaderboard table{width:100%;table-layout:fixed}
+body.mobile-rendering #leaderboard :is(th,td){padding:9px 3px;overflow-wrap:anywhere;font-size:11px}
+body.mobile-rendering #leaderboard th{font-size:9px;line-height:1.5}
+body.mobile-rendering #leaderboard th:nth-child(3){width:23%}
+body.mobile-rendering.modal-open .arena *,body.mobile-rendering.modal-open #ambient-stars *,body.mobile-rendering.modal-open #meteors *,body.mobile-rendering.modal-open .floating-letter{animation-play-state:paused!important}
+body.mobile-rendering #title-screen::before{animation:none}
+body.mobile-rendering #title-screen :is(#menu-title,.menu-mission){filter:none;text-shadow:2px 2px 0 #6e2856}
+body.mobile-rendering :is(#sweet-impact,#combo-impact,#smash) *{filter:none!important}
+body.mobile-rendering .sweet-pressure{display:none}
+body.mobile-rendering #launch-halo *{filter:none!important}
+body.mobile-rendering .sweet-ray:nth-of-type(2n),body.mobile-rendering .sweet-spark:nth-of-type(2n){display:none}
+@media(orientation:landscape) and (max-height:650px){
+body.mobile-rendering #result{width:min(740px,calc(100% - 24px));padding:16px}
+body.mobile-rendering #result[data-complete="false"]{width:min(560px,calc(100% - 24px))}
+body.mobile-rendering #result[data-complete="true"][open]{width:min(740px,calc(100% - 24px));grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+body.mobile-rendering #result[data-complete="true"] .result-overview{grid-column:1;grid-row:1;gap:12px}
+body.mobile-rendering #result[data-complete="true"] #form{grid-column:2;grid-row:1;gap:9px}
+body.mobile-rendering #result[data-complete="true"] #notice{grid-column:2;grid-row:2}
+body.mobile-rendering #result .result-header h2{font-size:18px}
+body.mobile-rendering #result .result-metrics{padding:10px;gap:10px}
+body.mobile-rendering #result .final-score strong{font-size:27px}
+body.mobile-rendering #result .score{font-size:24px}
+body.mobile-rendering #result #result-quip{font-size:13px}
+body.mobile-rendering :is(#help,#briefing,#leaderboard) h2{font-size:21px}
+}
+@media(max-width:360px){
+body.mobile-rendering #result{padding:14px}
+body.mobile-rendering #result .final-score strong{font-size:27px}
+body.mobile-rendering #result .score{font-size:23px}
+}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1381,7 +1458,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 </svg>
 <div class="impact-veil" aria-hidden="true"></div><div class="action"><button id="play" type="button">시작하기</button></div><p class="hint" id="game-hint" aria-live="polite">무궁이와 무진이의 도전을 시작하세요. <kbd>Space</kbd></p></section>
 <div class="steps"></div>
-<dialog class="result" id="result" aria-labelledby="result-title"><div class="result-header"><p class="tag">MISSION REPORT</p><h2 id="result-title">싱크로율</h2><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><span id="seal" class="stamp" hidden>등록 완료</span></div><div class="result-metrics"><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p id="result-quip" aria-live="polite"></p><p class="score"><span id="score" aria-live="polite"></span></p></div><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
+<dialog class="result" id="result" aria-labelledby="result-title"><div class="result-overview"><div class="result-header"><p class="tag">MISSION REPORT</p><h2 id="result-title">싱크로율</h2><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><span id="seal" class="stamp" hidden>등록 완료</span></div><div class="result-metrics"><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p id="result-quip" aria-live="polite"></p><p class="score"><span id="score" aria-live="polite"></span></p></div><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div></div><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
 <dialog class="result scoreboard" id="leaderboard" aria-labelledby="leaderboard-title">
 <p class="tag">HALL OF FAME</p><h2 id="leaderboard-title">무궁무진 스코어보드</h2>
 <p class="hint">8개 스테이지 · 사번별 최고 스코어 · TOP 100</p>
@@ -1543,9 +1620,9 @@ function fitGameViewport(){
   if(screen) screen.setAttribute('viewBox',(mobileOptimized||window.innerWidth<=900)?'90 40 720 275':'70 35 760 285');
 }
 document.fonts.ready.then(()=>{fitMissionHeading();fitOpeningMission();fitGameViewport();});
-window.addEventListener('resize',fitGameViewport);
-window.addEventListener('resize',fitOpeningMission);
-window.addEventListener('resize',fitMissionHeading);
+
+
+
 
 const help=get('help');
 get('help-open').addEventListener('click',()=>{
@@ -2577,10 +2654,22 @@ function syncResultViewport(){
   document.documentElement.style.setProperty('--result-viewport-height',viewport.height+'px');
   document.documentElement.style.setProperty('--result-viewport-top',viewport.offsetTop+'px');
 }
+let viewportRefresh=0,lastHeadingWidth=window.innerWidth;
+function scheduleViewportRefresh(){
+  if(viewportRefresh) return;
+  viewportRefresh=requestAnimationFrame(()=>{
+    viewportRefresh=0;
+    fitGameViewport();syncResultViewport();
+    if(window.innerWidth!==lastHeadingWidth){
+      lastHeadingWidth=window.innerWidth;
+      fitMissionHeading();fitOpeningMission();
+    }
+  });
+}
+window.addEventListener('resize',scheduleViewportRefresh);
 if(window.visualViewport){
-  window.visualViewport.addEventListener('resize',syncResultViewport);
-  window.visualViewport.addEventListener('resize',fitGameViewport);
-  window.visualViewport.addEventListener('scroll',syncResultViewport);
+  window.visualViewport.addEventListener('resize',scheduleViewportRefresh);
+  window.visualViewport.addEventListener('scroll',scheduleViewportRefresh);
   syncResultViewport();
 }
 
@@ -2588,4 +2677,14 @@ try{mobileOptimized=localStorage.getItem('blackhole-mobile-optimized')==='true';
 document.body.classList.toggle('mobile-optimized',mobileOptimized);
 updateRenderMode();
 renderLayoutButtons();
+
+function syncModalRendering(){
+  const modalOpen=Array.from(document.querySelectorAll('dialog')).some(dialog=>dialog.open);
+  document.body.classList.toggle('modal-open',modalOpen);
+}
+if(typeof MutationObserver!=='undefined'){
+  const modalObserver=new MutationObserver(syncModalRendering);
+  for(const dialog of document.querySelectorAll('dialog')) modalObserver.observe(dialog,{attributes:true,attributeFilter:['open']});
+  syncModalRendering();
+}
 </script></body></html>
