@@ -1156,6 +1156,9 @@ body.mobile-rendering #ambient-stars i:nth-child(3n),body.mobile-rendering #ambi
 body.mobile-rendering #ambient-stars i{box-shadow:none;animation:ambient-twinkle var(--duration) var(--delay) ease-in-out infinite alternate}
 body.mobile-rendering #ambient-stars{will-change:transform}
 body.mobile-rendering .planet-surface,body.mobile-rendering .planet-night{animation:none}
+
+#play{touch-action:manipulation}
+body.menu-mode #orientation-tip.show-tip{display:block;position:fixed;bottom:12px;left:12px;right:12px;z-index:100;padding:12px;margin:0;border:1px solid #d49be777;border-radius:12px;background:#111428ee;color:#fff;font-size:12px;line-height:1.6}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1506,10 +1509,28 @@ function syncFullscreen(){
   fullscreen.textContent=active?'화면 축소':'전체화면';
   fullscreen.setAttribute('aria-pressed',String(active));
   renderLayoutButtons();
-  if(!active&&screen.orientation?.unlock){
-    try{screen.orientation.unlock();}catch{}
-  }
+
 }
+async function enterLandscape(){
+  const root=document.documentElement;
+  if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+    try{
+      if(root.requestFullscreen) await root.requestFullscreen();
+      else if(root.webkitRequestFullscreen) await root.webkitRequestFullscreen();
+    }catch{}
+  }
+  try{await screen.orientation?.lock?.('landscape');}catch{}
+  syncOrientationHint();
+  syncFullscreen();
+}
+function syncOrientationHint(){
+  const portrait=window.innerHeight>window.innerWidth;
+  orientationTip.textContent='휴대폰을 가로로 돌려 주세요. 자동 회전이 꺼져 있다면 켜 주세요.';
+  orientationTip.classList.toggle('show-tip',portrait);
+}
+window.addEventListener('resize',()=>{
+  if(window.innerWidth>window.innerHeight) orientationTip.classList.remove('show-tip');
+});
 fullscreen.addEventListener('click',async()=>{
   try{
     if(document.fullscreenElement){
@@ -1517,19 +1538,7 @@ fullscreen.addEventListener('click',async()=>{
     }else if(document.webkitFullscreenElement){
       document.webkitExitFullscreen();
     }else{
-      const root=document.documentElement;
-      if(root.requestFullscreen) await root.requestFullscreen();
-      else if(root.webkitRequestFullscreen) root.webkitRequestFullscreen();
-      else{
-        orientationTip.textContent='휴대폰을 가로로 돌려 플레이해 주세요. 이 브라우저에서는 전체화면이 지원되지 않아요.';
-        orientationTip.classList.add('show-tip');
-        return;
-      }
-      if(screen.orientation?.lock){
-        try{await screen.orientation.lock('landscape');}catch{
-          orientationTip.textContent='휴대폰을 가로로 돌려 플레이해 주세요.';
-        }
-      }
+      await enterLandscape();
     }
   }catch{
     orientationTip.textContent='전체화면을 열 수 없어요. 휴대폰을 가로로 돌려 플레이해 주세요.';
@@ -1537,8 +1546,14 @@ fullscreen.addEventListener('click',async()=>{
   }
   syncFullscreen();
 });
-document.addEventListener('fullscreenchange',syncFullscreen);
-document.addEventListener('webkitfullscreenchange',syncFullscreen);
+function fullscreenChanged(){
+  syncFullscreen();
+  if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+    try{screen.orientation?.unlock?.();}catch{}
+  }
+}
+document.addEventListener('fullscreenchange',fullscreenChanged);
+document.addEventListener('webkitfullscreenchange',fullscreenChanged);
 const board=get('leaderboard'), rankingKey='black-hole-eight-round-scores-v3';
 function comboBonus(combo){return combo>0?100*2**(combo-1):0;}
 function finalScore(accuracy,combo,perfects=0){return Math.round(accuracy*80)+comboBonus(combo)+perfects*500;}
@@ -1989,8 +2004,18 @@ function spiralIntoBlackHole(){
   }
   frame=requestAnimationFrame(suction);
 }
-function stop(){
+function inputTime(event){
+  const now=performance.now();
+  let timestamp=event?.timeStamp;
+  if(!Number.isFinite(timestamp)||timestamp<=0) return now;
+  if(timestamp>1e12) timestamp-=performance.timeOrigin;
+  return Number.isFinite(timestamp)&&timestamp>=started&&timestamp<=now?timestamp:now;
+}
+function stop(event){
+  if(state!=='running') return;
   cancelAnimationFrame(frame);
+  phase=offset+(inputTime(event)-started)*turn/stagePeriod;
+  paint(phase);
   const elapsedMs=(phase-offset)*stagePeriod/turn;
   const distance=pairDistance(phase);
   const verdict=distance<=7?'perfect':distance<=26?'good':'miss';
@@ -2108,8 +2133,8 @@ function stop(){
   }
   setTimeout(revealResult,hit?3300:1500);
 }
-function activate(){
-  if(state==='running') stop();
+function activate(event){
+  if(state==='running') stop(event);
   else if(state==='paused') togglePause();
   else if(state==='finished') showResult();
   else if(state==='ready') openBriefing();
@@ -2147,6 +2172,14 @@ get('next-round').addEventListener('click',()=>{
   start();
 });
 back.addEventListener('click',showResult);
+play.addEventListener('pointerdown',event=>{
+  if(state!=='running'||event.button!==0||event.isPrimary===false) return;
+  event.preventDefault();
+  play.classList.add('key-pressed');
+  stop(event);
+});
+window.addEventListener('pointerup',()=>play.classList.remove('key-pressed'));
+window.addEventListener('pointercancel',()=>play.classList.remove('key-pressed'));
 play.addEventListener('click',activate);
 retry.addEventListener('click',()=>{ready();play.focus();});
 get('result-restart').addEventListener('click',()=>{ready();openBriefing();});
@@ -2174,7 +2207,7 @@ document.addEventListener('keydown',event=>{
   if(event.code!=='Space'||event.target.closest('input,textarea,select,[contenteditable]')) return;
   if(event.target.closest('button')&&event.target!==play&&event.target!==retry) return;
   event.preventDefault();
-  if(!event.repeat){play.classList.add('key-pressed');activate();}
+  if(!event.repeat){play.classList.add('key-pressed');activate(event);}
 });
 document.addEventListener('keyup',event=>{if(event.code==='Space')play.classList.remove('key-pressed');});
 window.addEventListener('blur',()=>play.classList.remove('key-pressed'));
@@ -2395,8 +2428,17 @@ function setMobileOptimized(enabled){
   fitGameViewport();
   if(!document.body.classList.contains('menu-mode')) fitMissionHeading();
 }
-get('mobile-optimize').addEventListener('click',()=>setMobileOptimized(!mobileOptimized));
-get('menu-optimize').addEventListener('click',()=>setMobileOptimized(!mobileOptimized));
+async function toggleMobileLayout(){
+  const enabled=!mobileOptimized;
+  setMobileOptimized(enabled);
+  if(enabled&&mobileRenderMedia.matches) await enterLandscape();
+  else if(!enabled){
+    try{screen.orientation?.unlock?.();}catch{}
+    orientationTip.classList.remove('show-tip');
+  }
+}
+get('mobile-optimize').addEventListener('click',toggleMobileLayout);
+get('menu-optimize').addEventListener('click',toggleMobileLayout);
 window.addEventListener('resize',renderLayoutButtons);
 function syncResultViewport(){
   const viewport=window.visualViewport;

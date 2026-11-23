@@ -18,10 +18,10 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
     });
     return nodes.get(id);
   }
-  let failedOnce = false, serverScore = 0;
+  let failedOnce = false, serverScore = 0, clockNow = 1000;
   const context = vm.createContext({
     console, location: { protocol: 'https:' }, screen: {}, AbortSignal,
-    performance: { now: () => 1000 }, localStorage: { getItem: () => null, setItem() {} },
+    performance: { now: () => clockNow }, localStorage: { getItem: () => null, setItem() {} },
     document: { body: { classList }, fonts: { ready: { then() {} } }, getElementById: node,
       addEventListener() {}, createElement: () => ({ append() {} }) },
     window: { addEventListener() {}, matchMedia() { return { matches: false, addEventListener() {} }; } },
@@ -57,7 +57,8 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
   while (timers.length) { await timers.shift()(); await settle(); }
   assert.equal(run('state'), 'running');
   for (let stage = 1; stage <= 8; stage++) {
-    run('tick(1000+(Math.PI-offset)*stagePeriod/turn);stop();');
+    clockNow=run('started+(Math.PI-offset)*stagePeriod/turn');
+    run('stop();');
     await settle();
     await timers.shift()();
     if (configured && stage === 1) {
