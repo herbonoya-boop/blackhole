@@ -1290,6 +1290,13 @@ body.mobile-rendering #result .score{font-size:23px}
 #launch-status span{display:block;padding:20px 32px;border:1px solid #e4b4e77a;border-radius:16px;background:linear-gradient(145deg,#282039e8,#101322f0);box-shadow:0 10px 30px #0005,inset 0 1px 0 #ffffff22;color:#fff0f9;font:clamp(20px,3.2vw,30px)/1.5 "DNFBitBitv2",sans-serif;text-align:center;word-break:keep-all}
 .arena[data-state="launching"]>.action{visibility:hidden;pointer-events:none}
 @media(orientation:landscape) and (max-height:450px){#launch-status span{font-size:22px;padding:16px 26px}}
+
+#result .result-title-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 14px;min-width:0}
+#result .result-title-row h2{flex:0 0 auto;margin:0}
+#result .result-title-row #result-quip{flex:1 1 220px;grid-column:auto;order:0;margin:0;font:16px/1.6 "DNFBitBitv2",sans-serif;color:#ffd1eb;word-break:keep-all;overflow-wrap:anywhere;text-align:left}
+body.mobile-rendering #result .result-title-row{gap:7px 12px}
+body.mobile-rendering #result .result-title-row #result-quip{font-size:14px;line-height:1.65;flex-basis:210px;margin:0}
+@media(orientation:landscape) and (max-height:650px){body.mobile-rendering #result[data-complete="false"]{width:min(740px,calc(100% - 24px))}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1464,7 +1471,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 </svg>
 <div id="launch-status" hidden role="status" aria-live="polite"><span>출격 준비 중</span></div><div class="impact-veil" aria-hidden="true"></div><div class="action"><button id="play" type="button">시작하기</button></div><p class="hint" id="game-hint" aria-live="polite">무궁이와 무진이의 도전을 시작하세요. <kbd>Space</kbd></p></section>
 <div class="steps"></div>
-<dialog class="result" id="result" aria-labelledby="result-title"><div class="result-overview"><div class="result-header"><p class="tag">MISSION REPORT</p><h2 id="result-title">싱크로율</h2><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><span id="seal" class="stamp" hidden>등록 완료</span></div><div class="result-metrics"><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p id="result-quip" aria-live="polite"></p><p class="score"><span id="score" aria-live="polite"></span></p></div><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div></div><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
+<dialog class="result" id="result" aria-labelledby="result-title"><div class="result-overview"><div class="result-header"><p class="tag">MISSION REPORT</p><div class="result-title-row"><h2 id="result-title">싱크로율</h2><p id="result-quip" aria-live="polite"></p></div><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><span id="seal" class="stamp" hidden>등록 완료</span></div><div class="result-metrics"><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p class="score"><span id="score" aria-live="polite"></span></p></div><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div></div><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
 <dialog class="result scoreboard" id="leaderboard" aria-labelledby="leaderboard-title">
 <p class="tag">HALL OF FAME</p><h2 id="leaderboard-title">무궁무진 스코어보드</h2>
 <p class="hint">8개 스테이지 · 사번별 최고 스코어 · TOP 100</p>
@@ -2195,6 +2202,134 @@ function stopHaptic(event){
   if(event?.pointerType!=='touch'&&!(event?.type==='click'&&mobileRenderMedia.matches)) return;
   try{if(typeof navigator!=='undefined')navigator.vibrate?.(16);}catch{}
 }
+const stageQuips=[
+  [
+    100,
+    [
+      "방금 건 실력이시죠? 한 번 더 부탁드립니다.",
+      "이제 우연이었다고 하셔도 안 믿겠습니다.",
+      "무진이보다 본인이 더 놀라신 것 같습니다.",
+      "저장하셨죠? 다음에도 나온다는 보장은 없습니다.",
+      "이 장면을 못 보신 분들은 안 믿으시겠네요.",
+      "한 번은 봤습니다. 두 번도 가능하신가요?",
+      "무진이는 구하셨고, 겸손은 잠시 놓으셨네요.",
+      "방금 표정까지 캡처해 드릴 걸 그랬습니다."
+    ]
+  ],
+  [
+    95,
+    [
+      "아쉽네요. 자랑하실 뻔했는데요.",
+      "마지막 한 끗이 눈치를 못 챘네요.",
+      "거의 다 되셨는데 자랑은 잠시 보류입니다.",
+      "지금 웃으시기엔 조금 억울하시겠습니다.",
+      "본인 마음속 점수는 이미 100점이시죠?",
+      "아까 그 한 번만 다시 누르고 싶으시죠?",
+      "누가 보면 100점인 줄 알겠습니다. 표정이요.",
+      "무진이가 한 발만 더 오시랍니다."
+    ]
+  ],
+  [
+    90,
+    [
+      "표정 보니 본인도 놀라신 것 같습니다.",
+      "콤보는 드렸습니다. 우쭐하셔도 잠깐만요.",
+      "지금부터 갑자기 설명이 많아지실 것 같습니다.",
+      "방금부터 원래 잘하셨던 걸로 하시죠.",
+      "감 잡으셨군요. 놓치시는 것도 지켜보겠습니다.",
+      "한 번 잘하셨다고 방심하실 때가 됐습니다.",
+      "무진이가 일단 믿어 보겠다고 합니다.",
+      "슬슬 옆 사람을 부르고 싶어지시죠?"
+    ]
+  ],
+  [
+    80,
+    [
+      "분명 머릿속에서는 성공하셨을 텐데요.",
+      "손은 누르셨는데 운이 결재를 안 해주네요.",
+      "방금 고개 끄덕이셨는데 점수는 못 봤나 봅니다.",
+      "본인 기준으로는 들어간 거죠? 알겠습니다.",
+      "억울하신 표정까지는 잘 전달됐습니다.",
+      "조금만 더였다는 말씀, 벌써 들리는 것 같습니다.",
+      "성공하신 줄 알고 박수 칠 뻔했습니다.",
+      "무진이와 눈은 마주치셨겠습니다."
+    ]
+  ],
+  [
+    70,
+    [
+      "무진이가 방금 한숨을 쉬었습니다.",
+      "지금 버튼을 한 번 더 보실 필요는 없습니다.",
+      "무진이가 위치를 다시 보내 드렸습니다.",
+      "실력 발휘는 다음 단계부터 하시는 거죠?",
+      "원래 이 정도는 아니시라는 말씀, 이해합니다.",
+      "방금 건 연습이었다고 해 드릴까요?",
+      "구출 의지는 확인했습니다. 타이밍도 부탁드립니다.",
+      "설명은 괜찮습니다. 다음 판으로 보여 주세요."
+    ]
+  ],
+  [
+    50,
+    [
+      "누르기 전의 자신감은 어디 가셨나요?",
+      "구출 건은 재검토 부탁드립니다.",
+      "혹시 누르시면서 다른 생각도 하셨나요?",
+      "무진이가 기대치를 조정하고 있습니다.",
+      "아직 몸이 덜 풀리셨다고 해 두겠습니다.",
+      "방금 손가락과 상의가 덜 되셨나 봅니다.",
+      "무진이 쪽에서 진행 상황을 물어봅니다.",
+      "시간이 해결해 줄 줄 알았는데 직접 누르셔야 합니다."
+    ]
+  ],
+  [
+    30,
+    [
+      "눈 감고 하신 건 아니시죠?",
+      "혹시 다른 무진이를 찾고 계신가요?",
+      "구출보다 구경에 더 집중하신 것 같습니다.",
+      "우주가 넓다는 건 충분히 확인하셨습니다.",
+      "그렇게 멀리까지 누르실 줄은 몰랐습니다.",
+      "중앙 위치가 마음에 안 드셨나요?",
+      "무진이가 손을 더 크게 흔들고 있습니다.",
+      "버튼은 맞게 누르셨습니다. 거기까지는요."
+    ]
+  ],
+  [
+    20,
+    [
+      "무진이가 다른 분을 기다리고 있습니다.",
+      "무진이가 직접 오는 편이 빠르겠습니다.",
+      "혹시 무진이와 사이가 안 좋으신가요?",
+      "무진이가 구출 요청을 다시 올렸습니다.",
+      "이번에는 누르기 전에 중앙도 한 번 봐 주세요.",
+      "구조대 쪽에 인력 충원을 요청했습니다.",
+      "무진이가 슬슬 택시를 알아보고 있습니다.",
+      "스톱 버튼과 개인적인 감정은 없으시죠?"
+    ]
+  ],
+  [
+    0,
+    [
+      "무진이가 그냥 6년 기다리겠답니다.",
+      "무진이가 구출하러 출발했습니다.",
+      "무진이가 구조 요청을 취소했습니다.",
+      "혹시 무진이를 두고 오실 계획이셨나요?",
+      "무진이가 저희에게 따로 연락을 했습니다.",
+      "무진이가 일단 본인부터 챙기시랍니다.",
+      "방금은 블랙홀도 예상하지 못했습니다.",
+      "구출 대상이 바뀐 것 같습니다."
+    ]
+  ]
+];
+const lastStageQuip=new Map();
+function chooseStageQuip(percent){
+  const [threshold,pool]=stageQuips.find(([minimum])=>percent>=minimum);
+  const previous=lastStageQuip.get(threshold);
+  let index=Math.floor(Math.random()*(pool.length-(previous===undefined?0:1)));
+  if(previous!==undefined&&index>=previous) index++;
+  lastStageQuip.set(threshold,index);
+  return pool[index];
+}
 function inputTime(event){
   const now=performance.now();
   let timestamp=event?.timeStamp;
@@ -2244,16 +2379,7 @@ function stop(event){
   arena.dataset.sad=String(distance>26);
   const percent=Number(accuracyText);
   result.dataset.tier=percent===100?'perfect':percent>=90?'near':percent>=70?'high':percent>=50?'mid':percent>=20?'low':'oops';
-  const quip=percent===100?'무진이 구출 성공! 우주도 인정한 타이밍!':
-    percent>=90?'오오 거의다 왔어요!':
-    percent>=80?'무진이 손끝까지 닿았는데! 한 번 더!':
-    percent>=70?'감 잡았어요! 이제 우주 감각 장착 중!':
-    percent>=60?'반은 감각, 반은 운! 이번엔 감각을 믿어봐요!':
-    percent>=50?'절반의 성공! 무진이가 고개를 빼꼼!':
-    percent>=40?'무진이 말고 지나가던 운석을 잡았어요!':
-    percent>=30?'블랙홀이 눈치 보며 기다리고 있어요!':
-    percent>=20?'스페이스바와 아직 낯가리는 중인가요?':
-    '열심히 하면 치매예방에 좋아요!';
+  const quip=chooseStageQuip(percent);
   get('result-quip').textContent=quip;
 
   get('score').textContent=score;
