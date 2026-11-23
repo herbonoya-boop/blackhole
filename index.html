@@ -1146,6 +1146,16 @@ body:not(.menu-mode) .arena>.hud{margin-top:12px;margin-bottom:4px}
 @keyframes sweet-orbital-reverse{0%{opacity:0;transform:rotate(35deg) scale(.2,.08)}10%{opacity:1}70%{opacity:.65}100%{opacity:0;transform:rotate(-16deg) scale(4.2,1.8)}}
 @keyframes sweet-spark{0%{opacity:0;transform:translate(0,0) scale(.5)}9%{opacity:1}60%{opacity:1}100%{opacity:0;transform:translate(var(--spark-x),var(--spark-y)) scale(.1)}}
 @media(prefers-reduced-motion:reduce){.sweet-pressure,.sweet-orbital,.sweet-spark,.sweet-ring{animation:none;opacity:0}}
+
+/* Keep mobile movement free of animated SVG filter invalidations. */
+body.mobile-rendering #ballA,body.mobile-rendering #ballB,body.mobile-rendering .arena #ballA>svg,body.mobile-rendering .arena #ballB>svg,body.mobile-rendering .afterimages>g,body.mobile-rendering #trailA,body.mobile-rendering #trailB{filter:none!important}
+body.mobile-rendering .afterimages>g[id$="2"]{display:none}
+body.mobile-rendering .arena .readouts{backdrop-filter:none;-webkit-backdrop-filter:none;background:linear-gradient(135deg,#2b2946e8,#121426e8)}
+body.mobile-rendering #orbit-tilt{animation:none;transform:perspective(1100px) rotateX(var(--tilt-x,20deg)) rotateY(calc(-.4 * var(--tilt-y,13deg)))}
+body.mobile-rendering #ambient-stars i:nth-child(3n),body.mobile-rendering #ambient-stars i:nth-child(3n+1),body.mobile-rendering .meteor:nth-child(n+5){display:none}
+body.mobile-rendering #ambient-stars i{box-shadow:none;animation:ambient-twinkle var(--duration) var(--delay) ease-in-out infinite alternate}
+body.mobile-rendering #ambient-stars{will-change:transform}
+body.mobile-rendering .planet-surface,body.mobile-rendering .planet-night{animation:none}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1650,41 +1660,53 @@ const path = Array.from({length:361},(_,i)=> (i?'L':'M')+point(i*turn/360).join(
 for(const id of ['ribbon-depth-back','ribbon-depth-side','track-shadow','halo','rail','line','track-rim']) get(id).setAttribute('d',path);
 const crossingPath=Array.from({length:51},(_,i)=>point(-.5+i/50)).map((p,i)=>(i?'L':'M')+p.join(',')).join(' ');
 for(const id of ['bridge-shadow','bridge-side','bridge-surface','bridge-rim']) get(id).setAttribute('d',crossingPath);
-function placeCharacterLayer(id,depth){
-  const unit=get('depth-unit-'+id),layer=get(depth>=0?'front-depth-layer':'rear-depth-layer');
-  if(unit.parentNode!==layer) layer.append(unit);
-  get(id).style.setProperty('--character-light',String(.91+.15*depth));
-  get(id).style.setProperty('--character-saturation',String(.91+.1*depth));
+const mobileRenderMedia=window.matchMedia('(pointer:coarse), (max-width:900px)');
+function updateRenderMode(){
+  document.body.classList.toggle('mobile-rendering',mobileRenderMedia.matches||document.body.classList.contains('mobile-optimized'));
 }
-
+mobileRenderMedia.addEventListener('change',updateRenderMode);
+updateRenderMode();
+const characterNodes=['ballA','ballB'].map(id=>({
+  id,node:get(id),unit:get('depth-unit-'+id),trail:get(id==='ballA'?'trailA':'trailB'),
+  ghosts:[get(id+'-ghost1'),get(id+'-ghost2')]
+}));
+const characterFront=get('front-depth-layer'),characterRear=get('rear-depth-layer');
+let lastTrailPaint=-Infinity;
+function placeCharacterLayer(id,depth){
+  const character=characterNodes[id==='ballA'?0:1],layer=depth>=0?characterFront:characterRear;
+  if(character.unit.parentNode!==layer) layer.append(character.unit);
+  if(!document.body.classList.contains('mobile-rendering')){
+    character.node.style.setProperty('--character-light',String(.91+.15*depth));
+    character.node.style.setProperty('--character-saturation',String(.91+.1*depth));
+  }
+}
 function mujinPhase(phase){return phase+Math.PI;}
 function paint(phase){
-  get('ballA').setAttribute('transform','translate('+point(phase).join(' ')+')');
-  get('ballB').setAttribute('transform','translate('+point(mujinPhase(phase)).join(' ')+')');
-  const second=mujinPhase(phase);
+  const mobile=document.body.classList.contains('mobile-rendering');
+  const now=performance.now(),refreshTrail=!mobile||now-lastTrailPaint>=32;
   const proximity=Math.max(0,1-pairDistance(phase)/115);
-  get('lens').setAttribute('opacity',.13+.72*proximity);
-  for(const [id,at] of [['trailA',phase],['trailB',second]]){
-    const trail=Array.from({length:20},(_,i)=>point(at-i*.023));
-    get(id).setAttribute('d','M'+trail.map(pair=>pair.join(',')).join(' L'));
-    get(id).style.setProperty('--trail-width',8-4*proximity);
-  }
-  for(const [id,at] of [['ballA',phase],['ballB',second]]){
-    const [x,y]=point(at), style=get(id).style;
-    const depth=Math.cos(at);
-    style.setProperty('--depth',1);
-    get(id).setAttribute('transform','translate('+x+' '+y+') scale('+(1+.18*depth)+')');
-    placeCharacterLayer(id,depth);
-    style.setProperty('--warp-x',(center[0]-x)+'px');
-    style.setProperty('--warp-y',(center[1]-y)+'px');
-    style.setProperty('--suction-radius',id==='ballA'?'62px':'72px');
-    style.setProperty('--suction-start',id==='ballA'?'0deg':'180deg');
+  if(refreshTrail)lastTrailPaint=now;
+  for(let index=0;index<characterNodes.length;index++){
+    const character=characterNodes[index],at=phase+index*Math.PI;
+    const [x,y]=point(at),depth=Math.cos(at);
+    character.node.setAttribute('transform','translate('+x+' '+y+') scale('+(1+.18*depth)+')');
+    placeCharacterLayer(character.id,depth);
+    if(refreshTrail){
+      let trail='';
+      const samples=mobile?12:20,step=mobile?.023*19/11:.023;
+      for(let i=0;i<samples;i++){
+        const [tx,ty]=point(at-i*step);
+        trail+=(i?' L':'M')+tx.toFixed(2)+','+ty.toFixed(2);
+      }
+      character.trail.setAttribute('d',trail);
+      character.trail.style.setProperty('--trail-width',8-4*proximity);
+    }
     const tangentX=radius*Math.cos(at),tangentY=2*height*Math.cos(2*at);
     const tangentLength=Math.hypot(tangentX,tangentY);
-    for(let i=1;i<=2;i++){
-      const gap=i*1.2;
-      const ghost=get(id+'-ghost'+i);
-      ghost.setAttribute('transform','translate('+(-tangentX/tangentLength*gap)+' '+(-tangentY/tangentLength*gap)+')');
+    const ghostCount=mobile?1:2;
+    for(let i=0;i<ghostCount;i++){
+      const gap=(i+1)*1.2;
+      character.ghosts[i].setAttribute('transform','translate('+(-tangentX/tangentLength*gap)+' '+(-tangentY/tangentLength*gap)+')');
     }
   }
 }
@@ -2367,6 +2389,7 @@ function renderLayoutButtons(){
 function setMobileOptimized(enabled){
   mobileOptimized=enabled;
   document.body.classList.toggle('mobile-optimized',enabled);
+  updateRenderMode();
   try{localStorage.setItem('blackhole-mobile-optimized',String(enabled));}catch{}
   renderLayoutButtons();
   fitGameViewport();
@@ -2389,5 +2412,6 @@ if(window.visualViewport){
 
 try{mobileOptimized=localStorage.getItem('blackhole-mobile-optimized')==='true';}catch{}
 document.body.classList.toggle('mobile-optimized',mobileOptimized);
+updateRenderMode();
 renderLayoutButtons();
 </script></body></html>

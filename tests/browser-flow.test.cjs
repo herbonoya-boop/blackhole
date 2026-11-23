@@ -24,7 +24,7 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
     performance: { now: () => 1000 }, localStorage: { getItem: () => null, setItem() {} },
     document: { body: { classList }, fonts: { ready: { then() {} } }, getElementById: node,
       addEventListener() {}, createElement: () => ({ append() {} }) },
-    window: { addEventListener() {} },
+    window: { addEventListener() {}, matchMedia() { return { matches: false, addEventListener() {} }; } },
     setTimeout(callback) { timers.push(callback); }, requestAnimationFrame: () => 1, cancelAnimationFrame() {},
     setInterval() {}, clearInterval() {},
     fetch: async (url, options) => {
