@@ -83,7 +83,7 @@ values ('mugung-mujin-2026', '무궁무진 블랙홀 오픈 이벤트') on confl
 create or replace function public.bh_config(p_slug text)
 returns jsonb language sql security definer set search_path = '' as $$
   select jsonb_build_object('title', title, 'status', status, 'startsAt', starts_at,
-    'endsAt', ends_at, 'rulesVersion', rules_version,
+    'endsAt', ends_at, 'rulesVersion', rules_version, 'comboRadius', 26,
     'accepting', status = 'active' and clock_timestamp() >= starts_at and clock_timestamp() < ends_at)
   from blackhole.events where slug = p_slug;
 $$;
@@ -174,7 +174,10 @@ begin
     end if;
     a := s.phase_offset + p_elapsed_ms * 2*pi() / s.period_ms;
     d := sqrt(power(392*sin(a),2) + power(132*sin(2*a),2));
-    v_accuracy := case when d<=7 then 100 else least(99.99,round((100*(1-least(1,greatest(0,d-7)/385)))::numeric,2)) end;
+    v_accuracy := case
+      when d<=7 then 100
+      when d<=26 then least(99.99,round((100-(d-7)*10/19)::numeric,2))
+      else greatest(0,least(89.99,round((90*(392-d)/366)::numeric,2))) end;
     update blackhole.stages set elapsed_ms=p_elapsed_ms,accuracy=v_accuracy,is_perfect=(d<=7),
       completed_at=clock_timestamp() where coin_id=c.id and stage=p_stage returning * into s;
   end if;

@@ -1371,6 +1371,7 @@ Source https://df.game.naver.com/data/font/dnfbitbitv2 -->
 </dialog></main><script>
 const get = id => document.getElementById(id);
 const hosted=location.protocol==='https:'||location.protocol==='http:';
+let strictJudgement=!hosted;
 let serverMode=hosted,modeResolved=!hosted,modePromise=null;
 async function ensureGameMode(){
   if(modeResolved) return;
@@ -1378,6 +1379,7 @@ async function ensureGameMode(){
     modePromise=(async()=>{
       const config=await gameRequest('config');
       serverMode=config.configured===true;
+      strictJudgement=!serverMode||config.comboRadius===26;
       modeResolved=true;
       document.body.classList.toggle('preview-mode',!serverMode);
       get('preview-badge').hidden=serverMode;
@@ -1739,8 +1741,12 @@ function pairDistance(phase){
   }));
 }
 function accuracy(distance){
-  const tolerance=7;
-  return (100*(1-Math.min(1,Math.max(0,distance-tolerance)/(radius-tolerance)))).toFixed(2);
+  if(!strictJudgement){
+    return (100*(1-Math.min(1,Math.max(0,distance-7)/(radius-7)))).toFixed(2);
+  }
+  if(distance<=7) return '100.00';
+  if(distance<=26) return Math.min(99.99,100-(distance-7)*10/19).toFixed(2);
+  return Math.max(0,Math.min(89.99,90*(radius-distance)/(radius-26))).toFixed(2);
 }
 const play=get('play'), retry=get('retry'), employee=get('employee'), capture=get('capture');
 const result=get('result'), resultActions=get('result-actions'), form=get('form'), notice=get('notice'), back=get('back');
