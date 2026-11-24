@@ -1346,6 +1346,18 @@ body.performance-rendering.precision-play #stars,body.performance-rendering.prec
 #trailA,#trailB{filter:none!important;stroke-linejoin:round}
 
 body.performance-rendering.precision-play #orbit-tilt{animation-play-state:paused}
+
+/* A wider, slower orbit tilt makes front/back motion easier to read. */
+#orbit-tilt{animation-duration:18s}
+#leaderboard{font-family:"NeoDunggeunmo",monospace;font-weight:400;font-synthesis:none}
+#leaderboard :is(h2,p,th,td,button,strong){font-family:inherit;font-weight:400}
+#leaderboard h2{font-size:26px;line-height:1.3;letter-spacing:0}
+#leaderboard .tag{font-size:11px;letter-spacing:.12em}
+#leaderboard .hint{font-size:13px;line-height:1.45}
+#leaderboard th{font-size:13px;letter-spacing:0}
+#leaderboard td{font-size:16px;line-height:1.3;font-variant-numeric:tabular-nums}
+#leaderboard #leaderboard-close{font-size:15px;letter-spacing:0}
+@media(max-width:520px){#leaderboard h2{font-size:22px}#leaderboard th{font-size:11px}#leaderboard td{font-size:13px}#leaderboard .hint{font-size:12px}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -2124,11 +2136,11 @@ function updateHud(){
   total.textContent=points.toLocaleString('ko-KR');
   combo.textContent=String(streak);
   get('round').textContent=round+' / 8';
-  const tilt=20+(round-1)*2.3;
-  const swing=13+(round-1)*1.8;
+  const tilt=32+(round-1)*2;
+  const swing=22+(round-1)*1.8;
   arena.style.setProperty('--tilt-x',tilt+'deg');
   arena.style.setProperty('--tilt-y',swing+'deg');
-  arena.style.setProperty('--tilt-z',(1.6+(round-1)*.24)+'deg');
+  arena.style.setProperty('--tilt-z',(3+(round-1)*.3)+'deg');
   combo.classList.remove('bump');
   if(streak){void combo.offsetWidth;combo.classList.add('bump');}
 
