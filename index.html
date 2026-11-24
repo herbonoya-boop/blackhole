@@ -1323,6 +1323,10 @@ body.mobile-rendering #result .result-title-row #result-quip{font-size:14px;line
 @media(orientation:landscape) and (max-height:600px){#help{padding:8px 16px}#help .help-steps{row-gap:6px;margin-bottom:6px}#help .help-note{margin:4px 0}#help .help-shortcuts{margin:4px 0;font-size:10px;gap:2px 12px}#help .asset-credit{display:inline-block;margin-right:14px}#help #help-close{margin-top:4px;min-height:30px;padding:5px 14px}}
 
 @media(orientation:landscape) and (max-height:600px){#help>.tag{display:inline-block;margin:0 10px 0 0;vertical-align:middle}#help h2{display:inline-block;font-size:18px;line-height:1.1;margin:0 0 4px;vertical-align:middle}#help .help-intro{margin-bottom:6px}#help .help-steps p{line-height:1.2}#help .help-formula{padding:5px 8px}#help .help-formula p{margin-top:2px}#help .help-note{font-size:10px}#help .asset-credit{margin-top:3px}}
+
+#leaderboard .leaderboard-prize{margin:12px 0 14px;padding:12px 14px;border:1px solid #f4cb7950;border-radius:10px;background:linear-gradient(110deg,#f4cb7912,#dd8bdb0c);font-family:"NeoDunggeunmo",monospace;font-size:16px;line-height:1.45;font-weight:400;color:#e8d5f2;word-break:keep-all;text-align:center}
+#leaderboard .leaderboard-prize span{display:inline-block}#leaderboard .leaderboard-prize strong{font-weight:400;color:#ffe09a}
+@media(max-width:520px),(max-height:500px){#leaderboard .leaderboard-prize{font-size:13px;padding:9px 10px;margin:9px 0 12px}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1597,6 +1601,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 <dialog class="result" id="result" aria-labelledby="result-title"><div class="result-overview"><div class="result-header"><p class="tag">MISSION REPORT</p><div class="result-title-row"><h2 id="result-title">싱크로율</h2><p id="result-quip" aria-live="polite"></p></div><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><span id="seal" class="stamp" hidden>등록 완료</span></div><div class="result-metrics"><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p class="score"><span id="score" aria-live="polite"></span></p></div><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div></div><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
 <dialog class="result scoreboard" id="leaderboard" aria-labelledby="leaderboard-title">
 <p class="tag">HALL OF FAME</p><h2 id="leaderboard-title">무궁무진 스코어보드</h2>
+<p class="leaderboard-prize"><span>12월 18일까지 TOP 100에게는</span> <span>카카오톡 선물하기 <strong>3만원권 지급!</strong></span></p>
 <p class="hint">8개 스테이지 · 사번별 최고 스코어 · TOP 100</p>
 <table><thead><tr><th scope="col">순위</th><th scope="col">사번</th><th scope="col">스코어</th><th scope="col">평균 싱크로율</th><th scope="col">콤보</th></tr></thead><tbody id="rankings"></tbody></table>
 <p id="ranking-empty" class="hint">첫 기록의 주인공이 되어보세요!</p>
