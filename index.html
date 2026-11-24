@@ -1721,6 +1721,11 @@ try{
     records=[...best.values()];
   }
 }catch{}
+function maskedLeaderboardEmployee(employee){
+  if(employee.length<=4) return '*'.repeat(employee.length);
+  const prefix=/^[A-Za-z]/.test(employee)?employee[0]:'';
+  return prefix+'*'.repeat(employee.length-prefix.length-3)+employee.slice(-3);
+}
 async function renderRankings(){
   try{await ensureGameMode();}catch(error){get('ranking-status').textContent=error.message;return;}
   if(serverMode){
@@ -1745,7 +1750,7 @@ async function renderRankings(){
   const sorted=[...records].sort((a,b)=>finalScore(b.accuracy,b.combo,b.perfects)-finalScore(a.accuracy,a.combo,a.perfects)||b.accuracy-a.accuracy||b.combo-a.combo||a.employee.localeCompare(b.employee)).slice(0,100);
   for(const [index,record] of sorted.entries()){
     const row=document.createElement('tr');
-    for(const value of [String(index+1),record.employee,String(finalScore(record.accuracy,record.combo,record.perfects)),record.accuracy.toFixed(2)+'%',String(record.combo)]){
+    for(const value of [String(index+1),maskedLeaderboardEmployee(record.employee),String(finalScore(record.accuracy,record.combo,record.perfects)),record.accuracy.toFixed(2)+'%',String(record.combo)]){
       const cell=document.createElement('td');
       cell.textContent=value;
       row.append(cell);

@@ -37,28 +37,29 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     assert.equal(winner.final.score, 24800);
     assert.equal(winner.final.maxCombo, 8);
     assert.equal(winner.final.perfects, 8);
-    await assert.rejects(rpc('bh_submit_coin', [winner.id, 'c'.repeat(64), '000001']), /INVALID_SESSION/);
-    const registered = await rpc('bh_submit_coin', [winner.id, token, '000001']);
+    await assert.rejects(rpc('bh_submit_coin', [winner.id, 'c'.repeat(64), 'A000001']), /INVALID_SESSION/);
+    const registered = await rpc('bh_submit_coin', [winner.id, token, 'A000001']);
     assert.equal(registered.rank, 1);
-    const repeated = await rpc('bh_submit_coin', [winner.id, token, '000001']);
+    const repeated = await rpc('bh_submit_coin', [winner.id, token, 'A000001']);
     assert.ok(Date.parse(repeated.rankedAt) >= Date.parse(registered.rankedAt));
     const { rankedAt: firstRankTime, ...originalResult } = registered;
     const { rankedAt: secondRankTime, ...repeatedResult } = repeated;
     assert.deepEqual(repeatedResult, originalResult);
     await assert.rejects(rpc('bh_submit_coin', [winner.id, token, '000002']), /ALREADY_SUBMITTED/);
     const worse = await coin(false);
-    const lower = await rpc('bh_submit_coin', [worse.id, token, '000001']);
+    const lower = await rpc('bh_submit_coin', [worse.id, token, 'A000001']);
     assert.equal(lower.score, 0);
     assert.equal(lower.bestScore, 24800);
     const runnerUp = await coin(true);
     const second = await rpc('bh_submit_coin', [runnerUp.id, token, '000002']);
     assert.equal(second.rank, 2);
     assert.equal(second.participants, 2);
+    await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/leaderboard-id-mask.sql'), 'utf8'));
     const board = await rpc('bh_leaderboard', ['mugung-mujin-2026']);
-    assert.equal(board.records[0].employee, '****01');
+    assert.equal(board.records[0].employee, 'A***001');
     assert.equal(board.records[0].score, 24800);
-    assert.equal(board.records[1].employee, '****02');
-    assert.equal(JSON.stringify(board).includes('000001'), false);
+    assert.equal(board.records[1].employee, '***002');
+    assert.equal(JSON.stringify(board).includes('A000001'), false);
     await db.exec(`
       insert into blackhole.coins(event_id,token_hash,network_hash,employee_id,score,sum_accuracy,max_combo,perfect_count,completed_at)
       select e.id,repeat('d',64),repeat('e',64),lpad((100000+g)::text,6,'0'),g,500,1,0,clock_timestamp()
@@ -75,6 +76,6 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     assert.equal(permission.rows[0].allowed, false);
     await db.exec("update blackhole.events set ends_at=clock_timestamp()-interval '1 second';");
     await assert.rejects(rpc('bh_create_coin', ['mugung-mujin-2026', token, network]), /EVENT_CLOSED/);
-    assert.equal((await rpc('bh_submit_coin', [winner.id, token, '000001'])).bestScore, 24800);
+    assert.equal((await rpc('bh_submit_coin', [winner.id, token, 'A000001'])).bestScore, 24800);
   } finally { await db.close(); }
 });
