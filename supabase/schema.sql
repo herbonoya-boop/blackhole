@@ -147,7 +147,7 @@ begin
     raise exception 'STAGE_ORDER';
   end if;
   insert into blackhole.stages(coin_id, stage, phase_offset, period_ms)
-    values(c.id, p_stage, .85 + random()*.65, (2050.0/1.3/.8/.85)/(1+(p_stage-1)*.012))
+    values(c.id, p_stage, .85 + random()*.65, (2050.0/1.3/.8/.85)/(1+(p_stage-1)*.035))
     on conflict (coin_id,stage) do nothing;
   select * into s from blackhole.stages where coin_id=c.id and stage=p_stage;
   if s.completed_at is not null then raise exception 'STAGE_ALREADY_FINISHED'; end if;

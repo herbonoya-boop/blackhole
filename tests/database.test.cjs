@@ -10,6 +10,7 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     await db.exec('create role anon; create role authenticated; create role service_role;');
     await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/schema.sql'), 'utf8'));
     await db.exec("update blackhole.events set status='active',starts_at=now()-interval '1 day',ends_at=now()+interval '1 day';");
+    await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/stage-progression.sql'), 'utf8'));
     const token = 'a'.repeat(64), network = 'b'.repeat(64);
     async function rpc(name, args) {
       const placeholders = args.map((_, i) => `$${i + 1}`).join(',');
@@ -23,6 +24,7 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
       let final;
       for (let stage = 1; stage <= 8; stage++) {
         const info = await rpc('bh_start_stage', [id, token, stage]);
+        assert.ok(Math.abs(info.period-(2050/1.3/.8/.85)/(1+(stage-1)*.035))<1e-8);
         assert.deepEqual(await rpc('bh_start_stage', [id, token, stage]), info);
         await db.query("update blackhole.stages set started_at=clock_timestamp()-interval '10 seconds' where coin_id=$1 and stage=$2", [id, stage]);
         const target = perfect ? Math.PI : Math.PI / 2;
