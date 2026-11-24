@@ -1360,7 +1360,7 @@ body.performance-rendering.precision-play #orbit-tilt{animation-play-state:pause
 @media(max-width:520px){#leaderboard h2{font-size:22px}#leaderboard th{font-size:11px}#leaderboard td{font-size:13px}#leaderboard .hint{font-size:12px}}
 
 /* Each stage adds energy through color, thickness and flowing highlights. */
-.arena{--stage-color:#c7a3fa;--stage-light:#f1dcff;--stage-dark:#27203e;--stage-width:14px;--stage-side-width:21px;--stage-shadow-width:27px;--stage-flow-width:1.5px;--stage-flow-time:3s;--stage-rotation-time:18s}
+.arena{--stage-color:#c7a3fa;--stage-light:#f1dcff;--stage-dark:#27203e;--stage-width:8px;--stage-side-width:12px;--stage-shadow-width:17px;--stage-flow-width:1px;--stage-flow-time:3.2s;--stage-rotation-time:18s}
 #orbit-tilt{animation-duration:var(--stage-rotation-time)}
 #line,#bridge-surface{stroke-width:var(--stage-width)}
 #rail,#bridge-side{stroke:var(--stage-dark);stroke-width:var(--stage-side-width)}
@@ -2212,11 +2212,11 @@ function updateHud(){
   arena.style.setProperty('--stage-color',palette[0]);
   arena.style.setProperty('--stage-light',palette[1]);
   arena.style.setProperty('--stage-dark',palette[2]);
-  arena.style.setProperty('--stage-width',(14+stage*.9)+'px');
-  arena.style.setProperty('--stage-side-width',(21+stage*1.1)+'px');
-  arena.style.setProperty('--stage-shadow-width',(27+stage*1.3)+'px');
-  arena.style.setProperty('--stage-flow-width',(1.5+stage*.3)+'px');
-  arena.style.setProperty('--stage-flow-time',(3-stage*.3)+'s');
+  arena.style.setProperty('--stage-width',(8+stage*1.8)+'px');
+  arena.style.setProperty('--stage-side-width',(12+stage*2.1)+'px');
+  arena.style.setProperty('--stage-shadow-width',(17+stage*2.5)+'px');
+  arena.style.setProperty('--stage-flow-width',(1+stage*.35)+'px');
+  arena.style.setProperty('--stage-flow-time',Math.max(.45,3.2*Math.pow(.76,stage)).toFixed(3)+'s');
   arena.style.setProperty('--stage-rotation-time',(18-stage*.6)+'s');
   const tilt=32+stage*3;
   const swing=22+(round-1)*2;
