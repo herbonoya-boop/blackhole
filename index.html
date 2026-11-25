@@ -2669,7 +2669,7 @@ function stop(event){
 
   get('score').textContent=score;
   gameHint.textContent=hit?'싱크로율 100% · 워프 개방!':'싱크로율 분석 중…';
-  play.textContent='측정 중';
+  play.textContent='스톱!';
   play.disabled=true;
   if(audio?.state==='running'&&musicEnabled){
     const now=audio.currentTime;
@@ -2722,7 +2722,7 @@ function stop(event){
   function displayResult(){
     setState('finished');
       gameHint.textContent=hit?'워프 완료 · 미션 성공':'';
-    play.textContent='결과 보기';
+    play.textContent='스톱!';
     play.disabled=false;
     if(round===8){
       const average=roundScores.reduce((sum,value)=>sum+value,0)/8;
