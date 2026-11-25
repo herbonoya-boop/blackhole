@@ -2247,6 +2247,10 @@ function updateHud(){
     renderedNebulaStage=stage;
     if(typeof Image!=='undefined'&&stage<7){const nextNebula=new Image();nextNebula.src=stageNebulaSources[stage+1];}
   }
+  const holeScale=1.518*(1.25-stage*.4/7);
+  const holeTransform='translate(450 174) scale('+holeScale.toFixed(4)+') translate(-450 -174)';
+  get('black-hole-size').setAttribute('transform',holeTransform);
+  get('black-hole-target').setAttribute('transform',holeTransform);
   arena.dataset.stage=String(round);
   arena.style.setProperty('--stage-color',palette[0]);
   arena.style.setProperty('--stage-light',palette[1]);
