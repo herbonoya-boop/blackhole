@@ -1392,6 +1392,11 @@ body.performance-rendering.precision-play #orbit-tilt{animation-play-state:pause
 #leaderboard tr.my-ranking td{color:#fff0cc;border-bottom-color:#c9a1ee66}
 #leaderboard tr.my-ranking td:first-child{color:#ffdf94}
 #leaderboard tr.ranking-gap td{text-align:center;color:#a99bb8;font-size:22px;padding:3px 0;border-bottom:0;line-height:1}
+
+#leaderboard .channel-return{display:flex;align-items:center;justify-content:center;width:fit-content;max-width:100%;min-height:44px;margin:10px auto 0;padding:10px 18px;border:1px solid #c8a2e680;border-radius:999px;background:#b48bde0d;color:#fff;text-decoration:none;text-align:center;font:400 14px/1.4 "NeoDunggeunmo",monospace;word-break:keep-all;box-sizing:border-box;transition:background .15s,border-color .15s}
+#leaderboard .channel-return:hover{background:#b48bde24;border-color:#e6c6ff}
+#leaderboard .channel-return:focus-visible{outline:2px solid #8fe7ff;outline-offset:3px}
+@media(max-width:520px){#leaderboard .channel-return{font-size:13px;padding:10px 14px}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1671,7 +1676,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 <table><thead><tr><th scope="col">순위</th><th scope="col">사번</th><th scope="col">스코어</th><th scope="col">평균 싱크로율</th><th scope="col">콤보</th></tr></thead><tbody id="rankings"></tbody></table>
 <p id="ranking-empty" class="hint">첫 기록의 주인공이 되어보세요!</p>
 <p id="ranking-status" class="hint" role="status"></p>
-<button type="button" id="leaderboard-close" class="secondary">게임으로 돌아가기</button></dialog>
+<button type="button" id="leaderboard-close" class="secondary">게임으로 돌아가기</button><a id="communication-channel" class="channel-return" href="https://mgmj.donga.co.kr/main">무궁무진 소통채널로 돌아가기</a></dialog>
 <dialog id="help" class="result help-dialog" aria-labelledby="help-title">
 <p class="tag">MISSION GUIDE</p><h2 id="help-title">무진이 구출 작전</h2>
 <p class="help-intro">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</p>
