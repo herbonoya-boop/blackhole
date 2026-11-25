@@ -1412,6 +1412,40 @@ button:disabled,button:disabled *{cursor:default}
 @keyframes stage-countdown-progress{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 @media(max-height:500px){#stage-countdown{font-size:11px;margin-top:5px;padding:5px 10px 7px}}
 @media(prefers-reduced-motion:reduce){#stage-countdown::after{animation:none}}
+
+/* Separate animated sprites from the complex SVG scene. */
+.motion-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;max-width:none;margin:0}
+.motion-front{z-index:3}
+.arena.canvas-motion>svg{position:relative;z-index:2}
+.arena.canvas-motion>.hud,.arena.canvas-motion>.action{position:relative;z-index:4}
+.canvas-motion #ballA,.canvas-motion #ballB,.canvas-motion .trail,.canvas-motion .orbit-energy{display:none!important}
+.arena[data-state="launching"] .motion-canvas{opacity:0}
+.arena[data-launch="arrival"] .motion-canvas{opacity:1;animation:canvas-arrival .8s ease-out both}
+@keyframes canvas-arrival{from{opacity:0}to{opacity:1}}
+body.performance-rendering.precision-play #black-hole *{animation-play-state:paused!important}
+body.performance-rendering.precision-play #ambient-stars *,body.performance-rendering.precision-play #meteors *{animation-play-state:paused!important}
+@media(orientation:landscape) and (max-height:650px){body.mobile-rendering:not(.menu-mode) .arena.canvas-motion>svg{position:absolute}body.mobile-rendering:not(.menu-mode) .arena.canvas-motion>.hud,body.mobile-rendering:not(.menu-mode) .arena.canvas-motion>.action{position:absolute}}
+@media(prefers-reduced-motion:reduce){.motion-canvas{animation:none!important}}
+
+.arena.canvas-motion>svg{will-change:transform;isolation:isolate}
+.motion-canvas{will-change:transform;transform:translateZ(0)}
+
+.smooth-sprites{position:absolute;inset:0;z-index:3;pointer-events:none}
+.smooth-sprite{position:absolute;left:0;top:0;width:0;height:0;transform-origin:0 0;will-change:transform}
+.smooth-sprite::before{content:"";position:absolute;left:-12px;top:23px;width:24px;height:5px;border-radius:50%;background:#03040d66}
+.smooth-sprite-img{position:absolute;max-width:none;margin:0;pointer-events:none;user-select:none}
+.smooth-sad{display:none}
+.smooth-sprites[data-sad="true"] .smooth-happy{display:none}
+.smooth-sprites[data-sad="true"] .smooth-sad{display:block}
+.arena[data-state="launching"] .smooth-sprites{opacity:0}
+.arena[data-launch="arrival"] .smooth-sprites{opacity:1;animation:canvas-arrival .8s ease-out both}
+@media(prefers-reduced-motion:reduce){.smooth-sprites{animation:none!important}}
+
+.motion-still{position:absolute;inset:0;width:100%;height:100%;max-width:none;margin:0;z-index:2;pointer-events:none;will-change:transform}
+.arena.static-scene>svg{visibility:hidden!important}
+
+.smooth-tail{position:absolute;left:0;top:0;width:1px;height:1px;transform-origin:0 50%;will-change:transform;pointer-events:none;border-radius:1px;opacity:0}
+.tail-mugung{background:#f3a0da}.tail-mujin{background:#c3abf3}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -2042,6 +2076,7 @@ get('leaderboard-close').addEventListener('click',()=>board.close());
 get('channel-return').addEventListener('click',()=>location.assign('https://mgmj.donga.co.kr/main'));
 
 const center = [450,174], radius = 392, height = 132, period = (2050 / 1.3) / .8 / .85, turn = Math.PI*2;
+let smoothRenderer=null;
 function point(phase){
   return [center[0]+radius*Math.sin(phase),center[1]+height*Math.sin(2*phase)];
 }
@@ -2052,6 +2087,7 @@ for(const id of ['bridge-shadow','bridge-side','bridge-surface','bridge-rim','br
 const mobileRenderMedia=window.matchMedia('(pointer:coarse), (max-width:900px)');
 function updateRenderMode(){
   document.body.classList.toggle('mobile-rendering',mobileRenderMedia.matches||document.body.classList.contains('mobile-optimized'));
+  if(smoothRenderer)smoothRenderer.invalidate();
 }
 mobileRenderMedia.addEventListener('change',updateRenderMode);
 updateRenderMode();
@@ -2094,6 +2130,7 @@ function faceCharacterToCamera(character,matrix){
 }
 function mujinPhase(phase){return phase+Math.PI;}
 function paint(phase){
+  if(smoothRenderer){smoothRenderer.drawPhase(phase,performance.now());return;}
   const projection=readOrbitProjection();
   const mobile=document.body.classList.contains('mobile-rendering');
   const stageScale=1-(round-1)*.03;
@@ -2224,6 +2261,7 @@ sound.addEventListener('click',()=>{
 function setState(value){
   state=value;
   arena.dataset.state=value;
+  if(smoothRenderer)smoothRenderer.invalidate();
   get('launch-status').hidden=value!=='launching';
   document.body.classList.toggle('precision-play',value==='running');
   pause.disabled=value!=='running'&&value!=='paused';
@@ -2267,6 +2305,7 @@ function updateHud(){
   arena.style.setProperty('--tilt-x',tilt+'deg');
   arena.style.setProperty('--tilt-y',swing+'deg');
   arena.style.setProperty('--tilt-z',(3+(round-1)*.4)+'deg');
+  if(smoothRenderer)smoothRenderer.invalidate();
   combo.classList.remove('bump');
   if(streak){void combo.offsetWidth;combo.classList.add('bump');}
 
@@ -2308,7 +2347,7 @@ function monitorFramePacing(now){
   performanceSamples++;
   if(elapsed>30)performanceSlowFrames++;
   if(performanceSamples>=60){
-    if(performanceSlowFrames>=20)document.body.classList.add('performance-rendering');
+    if(performanceSlowFrames>=20){document.body.classList.add('performance-rendering');if(smoothRenderer)smoothRenderer.invalidate();}
     performanceSamples=0;performanceSlowFrames=0;
   }
 }
@@ -2418,7 +2457,8 @@ function spiralIntoBlackHole(){
   const began=performance.now();
   const origins=[point(phase),point(mujinPhase(phase))];
   function suction(now){
-    const projection=readOrbitProjection();
+    const actors=[];
+    const projection=smoothRenderer?null:readOrbitProjection();
     const progress=Math.min(1,Math.max(0,(now-began)/2400));
     const opening=Math.min(1,progress/.18);
     const closing=Math.max(0,1-Math.max(0,progress-.18)/.82);
@@ -2426,15 +2466,17 @@ function spiralIntoBlackHole(){
     const angle=progress*Math.PI*5+progress*progress*Math.PI*2;
     for(const [index,id] of ['ballA','ballB'].entries()){
       const orbitAngle=angle+index*Math.PI;
-      placeCharacterLayer(id,Math.sin(orbitAngle));
+      if(!smoothRenderer)placeCharacterLayer(id,Math.sin(orbitAngle));
       const residual=(1-opening)**2;
       const x=center[0]+(origins[index][0]-center[0])*residual+Math.cos(orbitAngle)*radius;
       const y=center[1]+(origins[index][1]-center[1])*residual+Math.sin(orbitAngle)*radius;
       const scale=Math.max(.001,closing**1.1)*(1-(round-1)*.03);
+      if(smoothRenderer){actors.push({x,y,scale,depth:Math.sin(orbitAngle),opacity:Math.min(1,closing*4)});continue;}
       get(id).setAttribute('transform','translate('+x+' '+y+') scale('+scale+')');
       faceCharacterToCamera(characterNodes[index],projection);
       get(id).style.opacity=String(Math.min(1,closing*4));
     }
+    if(smoothRenderer)smoothRenderer.drawActors(actors,now);
     if(progress<1&&state==='settling') frame=requestAnimationFrame(suction);
   }
   frame=requestAnimationFrame(suction);
@@ -2679,6 +2721,7 @@ function stop(event){
   score=accuracyText+'%';
   get('final-score').textContent=points.toLocaleString('ko-KR');
   arena.dataset.sad=String(distance>26);
+  if(smoothRenderer)smoothRenderer.drawPhase(phase,performance.now());
   const percent=Number(accuracyText);
   result.dataset.tier=percent===100?'perfect':percent>=90?'near':percent>=70?'high':percent>=50?'mid':percent>=20?'low':'oops';
   const quip=chooseStageQuip(percent);
@@ -3133,4 +3176,505 @@ if(typeof MutationObserver!=='undefined'){
   for(const dialog of document.querySelectorAll('dialog')) modalObserver.observe(dialog,{attributes:true,attributeFilter:['open']});
   syncModalRendering();
 }
+
+async function initSmoothRenderer() {
+  if (
+    typeof HTMLCanvasElement === "undefined" ||
+    typeof Image === "undefined" ||
+    typeof ResizeObserver === "undefined"
+  )
+    return;
+  const spriteNodes = characterNodes.map((character) => get("cached-art-" + character.id));
+  const sprites = await Promise.all(
+    spriteNodes.map(async (node) =>
+      Promise.all(
+        [".mobile-happy", ".mobile-sad"].map(async (selector) => {
+          const source = node.querySelector(selector),
+            image = new Image();
+          image.src = source.getAttribute("href");
+          await image.decode();
+          return {
+            image,
+            x: Number(source.getAttribute("x")),
+            y: Number(source.getAttribute("y")),
+            width: Number(source.getAttribute("width")),
+            height: Number(source.getAttribute("height")),
+          };
+        }),
+      ),
+    ),
+  );
+  const front = document.createElement("canvas"),
+    still = document.createElement("canvas"),
+    spritePlane = document.createElement("div");
+  front.className = "motion-canvas motion-front";
+  still.className = "motion-still";
+  still.hidden = true;
+  spritePlane.className = "smooth-sprites";
+  front.setAttribute("aria-hidden", "true");
+  spritePlane.setAttribute("aria-hidden", "true");
+  const frontContext = front.getContext("2d");
+  if (!frontContext) return;
+  const tailElements = sprites.map((_, index) => {
+    const node = document.createElement("div");
+    node.className = "smooth-tail " + (index ? "tail-mujin" : "tail-mugung");
+    spritePlane.append(node);
+    return node;
+  });
+  const trailHeads = [null, null];
+  const spriteElements = sprites.map((pair) => {
+    const node = document.createElement("div");
+    node.className = "smooth-sprite";
+    pair.forEach((sprite, index) => {
+      const image = sprite.image;
+      image.className = "smooth-sprite-img " + (index ? "smooth-sad" : "smooth-happy");
+      image.alt = "";
+      image.draggable = false;
+      Object.assign(image.style, {
+        left: sprite.x + "px",
+        top: sprite.y + "px",
+        width: sprite.width + "px",
+        height: sprite.height + "px",
+      });
+      node.append(image);
+    });
+    spritePlane.append(node);
+    return node;
+  });
+  arena.append(still, front, spritePlane);
+  const scene = arena.querySelector(":scope > svg"),
+    playfield = get("playfield");
+  let dirty = true,
+    geometry,
+    orbitAnimation,
+    staticProjection,
+    flowTime = 0,
+    svgPaused = false,
+    lastInkPaint = -Infinity,
+    inkInterval = 1000 / 30;
+  let snapshotGeneration = 0,
+    snapshotReadyKey = "",
+    snapshotPendingKey = "";
+  const snapshotImageSources = new Map();
+  let width = 0,
+    heightPixels = 0,
+    stage = 0,
+    palette,
+    flowPeriod,
+    flowWidth,
+    orbitDuration,
+    holeScale;
+  let orbitLength = 0;
+  for (let i = 1; i <= 360; i++) {
+    const a = point(((i - 1) * turn) / 360),
+      b = point((i * turn) / 360);
+    orbitLength += Math.hypot(b[0] - a[0], b[1] - a[1]);
+  }
+  const resizeObserver = new ResizeObserver(() => {
+    dirty = true;
+    if (["ready", "paused", "finished", "launching"].includes(state))
+      requestAnimationFrame(() => paint(phase));
+  });
+  resizeObserver.observe(arena);
+
+  async function cacheStillScene(key) {
+    const generation = ++snapshotGeneration;
+    snapshotPendingKey = key;
+    arena.classList.remove("static-scene");
+    still.hidden = true;
+    const clone = scene.cloneNode(true);
+    const skip =
+      "#depth-unit-ballA,#depth-unit-ballB,#warp,#impact,#smash,#combo-impact,#combo-burst,#sweet-impact,#portal-message,#launch-halo,.trail,.orbit-energy";
+    const originals = [scene, ...scene.querySelectorAll("*")],
+      copies = [clone, ...clone.querySelectorAll("*")];
+    const properties = [
+      "display",
+      "visibility",
+      "opacity",
+      "fill",
+      "fill-opacity",
+      "fill-rule",
+      "stroke",
+      "stroke-width",
+      "stroke-opacity",
+      "stroke-linecap",
+      "stroke-linejoin",
+      "stroke-dasharray",
+      "stroke-dashoffset",
+      "clip-path",
+      "mask",
+      "filter",
+      "mix-blend-mode",
+      "transform",
+      "transform-origin",
+      "transform-box",
+      "scale",
+      "color",
+      "stop-color",
+      "stop-opacity",
+    ];
+    for (let i = 0; i < originals.length; i++) {
+      if (originals[i].closest(skip)) continue;
+      const style = getComputedStyle(originals[i]);
+      for (const property of properties) {
+        if (
+          (property === "transform" ||
+            property === "transform-origin" ||
+            property === "transform-box") &&
+          originals[i].hasAttribute("transform")
+        )
+          continue;
+        let value = style.getPropertyValue(property);
+        value = value.replace(/url\(["']?[^)"']*#([^)'" ]+)["']?\)/g, "url(#$1)");
+        copies[i].style.setProperty(property, value);
+      }
+    }
+    clone
+      .querySelectorAll(skip + ",animate,animateTransform,animateMotion")
+      .forEach((node) => node.remove());
+    const plane = clone.querySelector("#orbit-tilt");
+    let planeMatrix;
+    if (staticProjection) {
+      planeMatrix = geometry.base.inverse().multiply(staticProjection);
+    } else {
+      const m = new DOMMatrixReadOnly(getComputedStyle(orbitTilt).transform);
+      planeMatrix = {
+        a: m.m11,
+        b: m.m12,
+        c: m.m21,
+        d: m.m22,
+        e: center[0] - m.m11 * center[0] - m.m21 * center[1],
+        f: center[1] - m.m12 * center[0] - m.m22 * center[1],
+      };
+    }
+    for (const property of [
+      "transform",
+      "transform-origin",
+      "transform-box",
+      "scale",
+      "rotate",
+      "translate",
+    ])
+      plane.style.removeProperty(property);
+    plane.setAttribute(
+      "transform",
+      "matrix(" +
+        [
+          planeMatrix.a,
+          planeMatrix.b,
+          planeMatrix.c,
+          planeMatrix.d,
+          planeMatrix.e,
+          planeMatrix.f,
+        ].join(" ") +
+        ")",
+    );
+
+    const inverse = scene.getScreenCTM().inverse();
+    const left = inverse.a * geometry.left + inverse.c * geometry.top + inverse.e,
+      top = inverse.b * geometry.left + inverse.d * geometry.top + inverse.f;
+    clone.setAttribute(
+      "viewBox",
+      [left, top, width / scene.getScreenCTM().a, heightPixels / scene.getScreenCTM().d].join(" "),
+    );
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("width", String(width));
+    clone.setAttribute("height", String(heightPixels));
+    Object.assign(clone.style, {
+      width: width + "px",
+      height: heightPixels + "px",
+      maxWidth: "none",
+      margin: "0",
+      position: "static",
+      visibility: "visible",
+      display: "block",
+    });
+    await Promise.all(
+      [...clone.querySelectorAll("image")].map(async (image) => {
+        const href = image.getAttribute("href");
+        if (!href || href.startsWith("data:")) return;
+        if (!snapshotImageSources.has(href))
+          snapshotImageSources.set(
+            href,
+            (async () => {
+              const response = await fetch(href);
+              if (!response.ok) throw new Error("Scene asset unavailable");
+              const blob = await response.blob();
+              return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(blob);
+              });
+            })(),
+          );
+        try {
+          image.setAttribute("href", await snapshotImageSources.get(href));
+        } catch (error) {
+          snapshotImageSources.delete(href);
+          throw error;
+        }
+      }),
+    );
+    if (generation !== snapshotGeneration) return;
+    const url = URL.createObjectURL(
+      new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml" }),
+    );
+    try {
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+      if (
+        generation !== snapshotGeneration ||
+        state !== "running" ||
+        !document.body.classList.contains("performance-rendering")
+      )
+        return;
+      const ratio = Math.min(1, 1280 / width);
+      still.width = Math.ceil(width * ratio);
+      still.height = Math.ceil(heightPixels * ratio);
+      const context = still.getContext("2d");
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      context.drawImage(image, 0, 0, width, heightPixels);
+      snapshotReadyKey = key;
+      still.hidden = false;
+      arena.classList.add("static-scene");
+    } catch {
+      snapshotReadyKey = "";
+    } finally {
+      URL.revokeObjectURL(url);
+      if (generation === snapshotGeneration) snapshotPendingKey = "";
+    }
+  }
+
+  function refresh() {
+    const rect = arena.getBoundingClientRect(),
+      base = playfield.getScreenCTM();
+    if (!base || rect.width < 1 || rect.height < 1) return false;
+    width = rect.width;
+    heightPixels = rect.height;
+    const limited = document.body.classList.contains("performance-rendering");
+    const ratio = Math.min(
+      window.devicePixelRatio || 1,
+      limited ? 1 : 1.5,
+      (limited ? 1280 : 1920) / width,
+    );
+    inkInterval = limited ? 50 : 1000 / 30;
+    const pixelWidth = Math.ceil(width * ratio), pixelHeight = Math.ceil(heightPixels * ratio);
+    if (front.width !== pixelWidth || front.height !== pixelHeight) {
+      front.width = pixelWidth;
+      front.height = pixelHeight;
+    }
+    frontContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+    frontContext.imageSmoothingEnabled = true;
+    geometry = { left: rect.left, top: rect.top, base, scale: Math.hypot(base.a, base.b) };
+    stage = round - 1;
+    palette = stagePalettes[stage];
+    flowPeriod = Math.max(0.45, 3.2 * Math.pow(0.76, stage));
+    flowWidth = 1 + stage * 0.35;
+    orbitDuration = (18 - stage * 0.6) * 1000;
+    holeScale = 1.518 * (1.25 - (stage * 0.4) / 7);
+    orbitAnimation = orbitTilt.getAnimations()[0] || null;
+    staticProjection = document.body.classList.contains("mobile-rendering")
+      ? orbitTilt.getScreenCTM()
+      : null;
+    const pauseSvg =
+      document.body.classList.contains("performance-rendering") && state === "running";
+    if (svgPaused !== pauseSvg) {
+      if (pauseSvg) scene.pauseAnimations?.();
+      else scene.unpauseAnimations?.();
+      svgPaused = pauseSvg;
+    }
+    if (pauseSvg) {
+      const key = [
+        round,
+        width,
+        heightPixels,
+        document.body.classList.contains("mobile-rendering"),
+        getComputedStyle(orbitTilt).transform,
+      ].join("|");
+      if (snapshotReadyKey === key) {
+        still.hidden = false;
+        arena.classList.add("static-scene");
+      } else if (snapshotPendingKey !== key)
+        cacheStillScene(key).catch(() => {
+          snapshotPendingKey = "";
+          snapshotReadyKey = "";
+        });
+    } else {
+      snapshotGeneration++;
+      snapshotPendingKey = "";
+      still.hidden = true;
+      arena.classList.remove("static-scene");
+    }
+    dirty = false;
+    return true;
+  }
+  function easedProgress(t) {
+    let u = t;
+    for (let i = 0; i < 5; i++) {
+      const x = 1.26 * u - 0.78 * u * u + 0.52 * u * u * u,
+        dx = 1.26 - 1.56 * u + 1.56 * u * u;
+      u = Math.max(0, Math.min(1, u - (x - t) / dx));
+    }
+    return u * u * (3 - 2 * u);
+  }
+  function projection() {
+    if (staticProjection) return null;
+    if (!orbitAnimation) return { a: 1, b: 0, c: 0, d: 1 };
+    const current = Number(orbitAnimation.currentTime) || 0,
+      position =
+        ((((current % orbitDuration) + orbitDuration) % orbitDuration) / orbitDuration) * 4;
+    const quadrant = Math.min(3, Math.floor(position)),
+      blend = easedProgress(position - quadrant);
+    const interpolate = (values) =>
+      values[quadrant] + (values[quadrant + 1] - values[quadrant]) * blend;
+    const x = ((32 + stage * 3) * interpolate([1, -0.65, -1, 0.65, 1]) * Math.PI) / 180;
+    const y = ((22 + stage * 2) * interpolate([-1, 0.3, 1, -0.3, -1]) * Math.PI) / 180;
+    const z = ((3 + stage * 0.4) * interpolate([-1, 1, 1, -1, -1]) * Math.PI) / 180;
+    const cx = Math.cos(x),
+      sx = Math.sin(x),
+      cy = Math.cos(y),
+      sy = Math.sin(y),
+      cz = Math.cos(z),
+      sz = Math.sin(z);
+    return { a: cy * cz, b: cx * sz + sx * sy * cz, c: -cy * sz, d: cx * cz - sx * sy * sz };
+  }
+  function project(x, y, matrix) {
+    if (staticProjection)
+      return {
+        x: staticProjection.a * x + staticProjection.c * y + staticProjection.e - geometry.left,
+        y: staticProjection.b * x + staticProjection.d * y + staticProjection.f - geometry.top,
+      };
+    const u = x - center[0],
+      v = y - center[1],
+      px = center[0] + matrix.a * u + matrix.c * v,
+      py = center[1] + matrix.b * u + matrix.d * v;
+    return {
+      x: geometry.base.a * px + geometry.base.c * py + geometry.base.e - geometry.left,
+      y: geometry.base.b * px + geometry.base.d * py + geometry.base.f - geometry.top,
+    };
+  }
+  function drawFlow(matrix) {
+    const advance = ((flowTime / 1000) * turn * 262) / orbitLength / flowPeriod;
+    frontContext.lineCap = "round";
+    frontContext.lineWidth = flowWidth * geometry.scale;
+    frontContext.strokeStyle = palette[1];
+    frontContext.globalAlpha = 0.88;
+    for (let i = 0; i < 16; i++) {
+      const angle = advance + (i * turn) / 16,
+        length = i % 2 ? 0.009 : 0.035;
+      if (pairDistance(angle) < holeScale * 48) continue;
+      frontContext.beginPath();
+      for (let sample = 0; sample < 4; sample++) {
+        const [x, y] = point(angle + (sample * length) / 3),
+          p = project(x, y, matrix);
+        if (sample) frontContext.lineTo(p.x, p.y);
+        else frontContext.moveTo(p.x, p.y);
+      }
+      frontContext.stroke();
+    }
+    frontContext.globalAlpha = 1;
+  }
+  function drawActor(actor, index, matrix) {
+    const p = project(actor.x, actor.y, matrix),
+      size = geometry.scale * actor.scale;
+    const distance = Math.hypot(actor.x - center[0], actor.y - center[1]);
+    const visible =
+      actor.depth >= 0
+        ? 1
+        : Math.max(0, Math.min(1, (distance - holeScale * 30) / (holeScale * 55)));
+    spriteElements[index].style.transform =
+      "translate3d(" + p.x + "px," + p.y + "px,0) scale(" + size + ")";
+    spriteElements[index].style.opacity = String(actor.opacity * visible);
+    return p;
+  }
+  function drawActors(actors, now, phaseValue) {
+    const forceInk = dirty;
+    if (dirty && !refresh()) return;
+    const matrix = projection(),
+      sad = arena.dataset.sad === "true";
+    if (spritePlane.dataset.sad !== String(sad)) spritePlane.dataset.sad = String(sad);
+    const positions = actors.map((actor, index) => drawActor(actor, index, matrix));
+    for (let i = 0; i < tailElements.length; i++) {
+      const head = trailHeads[i],
+        p = positions[i],
+        tail = tailElements[i];
+      if (
+        phaseValue === undefined ||
+        !head ||
+        Math.hypot(actors[i].x - center[0], actors[i].y - center[1]) < holeScale * 35
+      ) {
+        tail.style.opacity = "0";
+        continue;
+      }
+      const dx = p.x - head.x,
+        dy = p.y - head.y,
+        length = Math.hypot(dx, dy),
+        proximity = Math.max(0, 1 - pairDistance(phaseValue) / 115);
+      tail.style.opacity = ".6";
+      tail.style.transform =
+        "translate3d(" +
+        head.x +
+        "px," +
+        (head.y - 0.5) +
+        "px,0) rotate(" +
+        Math.atan2(dy, dx) +
+        "rad) scale(" +
+        length +
+        "," +
+        (8 - 4 * proximity) * geometry.scale +
+        ")";
+    }
+    if (state === "running") flowTime = now;
+    if (!forceInk && now - lastInkPaint < inkInterval) return;
+    lastInkPaint = now;
+    frontContext.clearRect(0, 0, width, heightPixels);
+    if (state !== "launching") drawFlow(matrix);
+    if (phaseValue !== undefined) {
+      const proximity = Math.max(0, 1 - pairDistance(phaseValue) / 115);
+      frontContext.lineCap = "round";
+      frontContext.lineJoin = "round";
+      frontContext.lineWidth = (8 - 4 * proximity) * geometry.scale;
+      frontContext.globalAlpha = 0.6;
+      for (let index = 0; index < 2; index++) {
+        frontContext.strokeStyle = index ? "#c3abf3" : "#f3a0da";
+        frontContext.beginPath();
+        for (let i = 0; i < 12; i++) {
+          const [x, y] = point(phaseValue + index * Math.PI - (i * 0.023 * 19) / 11),
+            p = project(x, y, matrix);
+          if (i) frontContext.lineTo(p.x, p.y);
+          else frontContext.moveTo(p.x, p.y);
+        }
+        frontContext.stroke();
+        trailHeads[index] = positions[index];
+        tailElements[index].style.opacity = "0";
+      }
+      frontContext.globalAlpha = 1;
+    }
+  }
+  smoothRenderer = {
+    invalidate() {
+      dirty = true;
+    },
+    drawActors,
+    drawPhase(angle, now) {
+      const scale = 1 - (round - 1) * 0.03;
+      drawActors(
+        [0, 1].map((index) => {
+          const at = angle + index * Math.PI,
+            [x, y] = point(at),
+            depth = Math.cos(at);
+          return { x, y, depth, scale: (1 + 0.18 * depth) * scale, opacity: 1 };
+        }),
+        now,
+        angle,
+      );
+    },
+  };
+  arena.classList.add("canvas-motion");
+  paint(phase);
+}
+initSmoothRenderer().catch(()=>{});
+
 </script></body></html>
