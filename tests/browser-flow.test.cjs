@@ -23,7 +23,7 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
     console, location: { protocol: 'https:' }, screen: {}, AbortSignal,
     performance: { now: () => clockNow }, localStorage: { getItem: () => null, setItem() {} },
     document: { body: { classList }, fonts: { ready: { then() {} } }, getElementById: node,
-      addEventListener() {}, createElement: () => ({ append() {} }) },
+      addEventListener() {}, createElement: () => ({ append() {}, classList, setAttribute() {} }) },
     window: { addEventListener() {}, matchMedia() { return { matches: false, addEventListener() {} }; } },
     setTimeout(callback) { timers.push(callback); }, requestAnimationFrame: () => 1, cancelAnimationFrame() {},
     setInterval() {}, clearInterval() {}, clearTimeout() {},

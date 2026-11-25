@@ -11,6 +11,7 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/schema.sql'), 'utf8'));
     await db.exec("update blackhole.events set status='active',starts_at=now()-interval '1 day',ends_at=now()+interval '1 day';");
     await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/stage-progression.sql'), 'utf8'));
+    await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/personal-leaderboard.sql'), 'utf8'));
     const token = 'a'.repeat(64), network = 'b'.repeat(64);
     async function rpc(name, args) {
       const placeholders = args.map((_, i) => `$${i + 1}`).join(',');
@@ -74,6 +75,24 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     assert.equal(largeBoard.participants, 6002);
     assert.equal(largeBoard.records.length, 100);
     assert.equal(largeBoard.records[0].score, 24800);
+    const ownBest = await rpc('bh_personal_leaderboard', [worse.id, token]);
+    assert.equal(ownBest.ownRecord.rank, 1);
+    assert.equal(ownBest.ownRecord.score, 24800);
+    assert.equal(ownBest.ownRecord.accuracy, 100);
+    assert.equal(ownBest.ownRecord.combo, 8);
+    assert.equal(ownBest.records.length, 100);
+    await assert.rejects(rpc('bh_personal_leaderboard', [worse.id, 'c'.repeat(64)]), /INVALID_SESSION/);
+    const outside = await coin(false);
+    await rpc('bh_submit_coin', [outside.id, token, 'A000498']);
+    const ownOutside = await rpc('bh_personal_leaderboard', [outside.id, token]);
+    assert.equal(ownOutside.records.length, 100);
+    assert.equal(ownOutside.participants, 6003);
+    assert.equal(ownOutside.ownRecord.rank, 6003);
+    assert.equal(ownOutside.ownRecord.employee, 'A***498');
+    assert.equal(ownOutside.ownRecord.score, 0);
+    assert.equal(JSON.stringify(ownOutside).includes('A000498'), false);
+    const personalPermission = await db.query("select has_function_privilege('anon','public.bh_personal_leaderboard(uuid,text)','EXECUTE') as allowed");
+    assert.equal(personalPermission.rows[0].allowed, false);
     const permission = await db.query("select has_function_privilege('anon','public.bh_leaderboard(text)','EXECUTE') as allowed");
     assert.equal(permission.rows[0].allowed, false);
     await db.exec("update blackhole.events set ends_at=clock_timestamp()-interval '1 second';");

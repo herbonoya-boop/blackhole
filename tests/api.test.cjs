@@ -37,6 +37,11 @@ test('API keeps service key private and rejects invalid requests', async () => {
     assert.equal((await request('POST', 'finish', { ...session, elapsedMs: -1 }, { ...headers, cookie })).code, 400);
     assert.equal((await request('POST', 'submit', { ...session, employee: ' ' }, { ...headers, cookie })).code, 400);
     assert.equal((await request('POST', 'submit', { ...session, employee: '0001' }, headers)).code, 401);
+    assert.equal((await request('POST', 'personal-leaderboard', session, headers)).code, 401);
+    assert.equal((await request('POST', 'personal-leaderboard', session, { ...headers, cookie })).code, 200);
+    assert.match(calls.at(-1).url, /rpc\/bh_personal_leaderboard$/);
+    assert.equal(calls.at(-1).body.p_coin_id, session.coinId);
+    assert.equal(calls.at(-1).body.p_token_hash.length, 64);
   } finally {
     global.fetch = originalFetch;
     for (const key of Object.keys(process.env)) if (!(key in originalEnv)) delete process.env[key];

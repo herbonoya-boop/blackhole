@@ -62,6 +62,9 @@ module.exports = async function handler(req, res) {
     }
     if (!token || !uuid.test(body.coinId || '')) throw new GameError('INVALID_SESSION', 401);
     const parameters = { p_coin_id: body.coinId, p_token_hash: hash(token) };
+    if (action === 'personal-leaderboard') {
+      return res.status(200).json(await rpc('bh_personal_leaderboard', parameters));
+    }
     if (action === 'start' || action === 'finish') {
       if (!Number.isInteger(body.stage) || body.stage < 1 || body.stage > 8) throw new GameError('INVALID_STAGE');
       parameters.p_stage = body.stage;
