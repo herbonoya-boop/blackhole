@@ -848,18 +848,18 @@ header{font-size:9px;line-height:1.2;padding-bottom:0}
 .arena[data-state="finished"] #play,.arena[data-state="launching"] #play,.arena[data-state="connecting"] #play{font-size:10px}
 }
 
-.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){flex:0 0 106px;width:106px;min-width:0;height:38px;min-height:38px;padding:0 6px;font-size:12px}
-@media(max-width:900px){.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){flex-basis:93px;width:93px;height:36px;min-height:36px;font-size:11px}}
-@media(max-width:600px) and (orientation:portrait){.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){flex:1 1 0;width:auto;height:40px;min-height:40px;padding:0 3px;font-size:10px}}
-@media(orientation:landscape) and (max-height:600px){.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){flex:0 0 90px;width:90px;height:32px;min-height:32px;padding:0 5px;font-size:10px}}
-@media(max-width:360px){.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){font-size:9px;padding:0 2px;gap:3px}.hero .hud-controls button.secondary::before{width:12px;height:12px;flex-basis:12px}}
+.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){flex:0 0 106px;width:106px;min-width:0;height:38px;min-height:38px;padding:0 6px;font-size:12px}
+@media(max-width:900px){.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){flex-basis:93px;width:93px;height:36px;min-height:36px;font-size:11px}}
+@media(max-width:600px) and (orientation:portrait){.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){flex:1 1 0;width:auto;height:40px;min-height:40px;padding:0 3px;font-size:10px}}
+@media(orientation:landscape) and (max-height:600px){.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){flex:0 0 90px;width:90px;height:32px;min-height:32px;padding:0 5px;font-size:10px}}
+@media(max-width:360px){.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){font-size:9px;padding:0 2px;gap:3px}.hero .hud-controls button.secondary::before{width:12px;height:12px;flex-basis:12px}}
 
 @media(orientation:landscape) and (max-height:600px){
 .hero{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0 2px}
 .hero>.tag{display:none}
 .hero h1{flex:0 0 auto;font-size:clamp(20px,5.5vh,30px);margin:0;line-height:1.2}
 .hero>.hud-controls{flex:0 1 auto;width:auto;max-width:none;margin:0;gap:4px;flex-wrap:nowrap}
-.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){flex:0 0 82px;width:82px;font-size:9px;padding:0 4px;gap:4px}
+.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){flex:0 0 82px;width:82px;font-size:9px;padding:0 4px;gap:4px}
 .hero .hud-controls button.secondary::before{width:13px;height:13px;flex-basis:13px}
 }
 .arena[data-state='running']>#play{white-space:nowrap}.arena[data-state='running']>.action>#play{white-space:nowrap;font-size:18px}
@@ -888,7 +888,7 @@ body.mobile-optimized #orientation-tip:not(.show-tip){display:none}
 body.mobile-optimized .hero{display:flex;flex-direction:column;align-items:center;gap:4px;width:calc(100% - 20px);padding:4px 0 0}
 body.mobile-optimized .hero h1{font-size:clamp(22px,5.5vw,34px);line-height:1.15;margin:2px 0}
 body.mobile-optimized .hero>.hud-controls{display:flex;flex-wrap:nowrap;width:100%;max-width:620px;gap:4px;margin:2px auto}
-body.mobile-optimized .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){flex:1 1 0;width:auto;min-width:0;height:36px;min-height:36px;padding:0 3px;gap:4px;font-size:10px}
+body.mobile-optimized .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){flex:1 1 0;width:auto;min-width:0;height:36px;min-height:36px;padding:0 3px;gap:4px;font-size:10px}
 body.mobile-optimized .hero .hud-controls button.secondary::before{width:12px;height:12px;flex-basis:12px}
 body.mobile-optimized .arena>.hud{min-height:28px;margin:2px auto 0}
 body.mobile-optimized .readouts{font-size:9px}
@@ -901,21 +901,21 @@ body.mobile-optimized .arena[data-state="running"]>.action>#play{font-size:16px}
 .menu-top>span{flex:1 1 0;min-width:0}
 .menu-screen-actions{gap:4px;flex:none}
 #menu-optimize,#menu-mobile{font-size:10px;padding:6px 8px;min-height:38px}
-.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){font-size:9px;gap:3px;padding:0 2px}
+.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){font-size:9px;gap:3px;padding:0 2px}
 }
 @media(orientation:landscape) and (max-height:600px){
-.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){flex-basis:66px;width:66px;font-size:9px;gap:3px;padding:0 3px}
+.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){flex-basis:66px;width:66px;font-size:9px;gap:3px;padding:0 3px}
 body.mobile-optimized .hero{flex-direction:row;justify-content:space-between;gap:8px;padding-top:5px}
 body.mobile-optimized .hero h1{font-size:20px}
 body.mobile-optimized .hero>.hud-controls{width:auto;flex:0 1 400px;margin:0;gap:3px}
-body.mobile-optimized .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){height:32px;min-height:32px;font-size:9px}
+body.mobile-optimized .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){height:32px;min-height:32px;font-size:9px}
 body.mobile-optimized .arena>.action{min-height:72px;margin:1px 0 5px}
 body.mobile-optimized #play{width:66px;height:66px;min-height:66px}
 body.mobile-optimized .arena[data-state="running"]>.action>#play{font-size:14px}
 #menu-optimize,#menu-mobile{font-size:11px;min-height:36px;padding:6px 10px}
 }
 @media(max-width:360px){
-.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open),body.mobile-optimized .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){font-size:9px;gap:2px;padding:0 2px}
+.hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return),body.mobile-optimized .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){font-size:9px;gap:2px;padding:0 2px}
 .hero .hud-controls button.secondary::before{width:11px;height:11px;flex-basis:11px}
 }
 
@@ -993,7 +993,7 @@ body:not(.menu-mode) .arena>.action{margin-top:2px;margin-bottom:8px}
 body:not(.menu-mode) .hero{flex-direction:column;justify-content:center;gap:6px;padding:4px 0 2px}
 body:not(.menu-mode) .hero h1{font-size:clamp(25px,6.8vw,36px)}
 body:not(.menu-mode) .hero>.hud-controls{width:100%;max-width:620px;gap:4px}
-body:not(.menu-mode) .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){flex:1 1 0;width:auto;min-width:0}
+body:not(.menu-mode) .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){flex:1 1 0;width:auto;min-width:0}
 }
 @media(orientation:landscape) and (max-height:600px){
 body:not(.menu-mode) .hero{flex-direction:row;gap:8px;padding:3px 0 2px}
@@ -1186,7 +1186,7 @@ body.mobile-rendering:not(.menu-mode) main>header,body.mobile-rendering:not(.men
 body.mobile-rendering:not(.menu-mode) .hero{position:absolute;top:max(4px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));width:auto;height:34px;margin:0;padding:0;z-index:5;flex-direction:row;justify-content:space-between;gap:8px}
 body.mobile-rendering:not(.menu-mode) .hero h1{font-size:18px;line-height:1.1;margin:0;flex:0 0 auto}
 body.mobile-rendering:not(.menu-mode) .hero>.hud-controls{width:min(56vw,440px);max-width:none;flex:0 1 440px;gap:4px}
-body.mobile-rendering:not(.menu-mode) .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open){height:30px;min-height:30px;font-size:9px;padding:0 3px;gap:3px}
+body.mobile-rendering:not(.menu-mode) .hero :is(#mobile-optimize,#sound,#help-open,#fullscreen,#leaderboard-open,#channel-return){height:30px;min-height:30px;font-size:9px;padding:0 3px;gap:3px}
 body.mobile-rendering:not(.menu-mode) .arena{position:absolute;inset:0;width:100%;height:100%;min-height:0;padding:0;margin:0;display:block;border:0;border-radius:0;overflow:hidden}
 body.mobile-rendering:not(.menu-mode) .arena>svg{position:absolute;inset:0;width:100%;height:100%;max-width:none;min-height:0;margin:0;display:block}
 body.mobile-rendering:not(.menu-mode) .arena>.hud{position:absolute;top:calc(max(4px,env(safe-area-inset-top)) + 40px);left:50%;transform:translateX(-50%);width:min(420px,60vw);height:48px;min-height:0;margin:0;z-index:4}
@@ -1397,6 +1397,12 @@ body.performance-rendering.precision-play #orbit-tilt{animation-play-state:pause
 #leaderboard .channel-return:hover{background:#b48bde24;border-color:#e6c6ff}
 #leaderboard .channel-return:focus-visible{outline:2px solid #8fe7ff;outline-offset:3px}
 @media(max-width:520px){#leaderboard .channel-return{font-size:13px;padding:10px 14px}}
+
+.hero #channel-return{font-family:"DNFBitBitv2",sans-serif;font-weight:400;letter-spacing:0;font-size:12px}
+.hero .hud-controls #channel-return::before{content:"↩";background:none;mask:none;-webkit-mask:none;width:15px;height:auto;font-family:Arial,sans-serif;font-size:16px;line-height:1}
+@media(min-width:901px){body:not(.menu-mode) .hero>.hud-controls{max-width:760px}body:not(.menu-mode) .hero #channel-return{flex:1.45 1 0;min-width:142px}}
+@media(max-width:900px){.hero #channel-return{font-size:9px}}
+@media(max-width:600px) and (orientation:portrait){.hero .hud-controls #channel-return::before{display:none}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1610,7 +1616,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 <section id="exit-screen" hidden aria-labelledby="exit-title"><div><p class="tag">MISSION STANDBY</p><h2 id="exit-title">다음 워프에서 만나요!</h2><p>플레이를 종료했습니다. 브라우저 탭을 닫아 나갈 수 있어요.</p><button type="button" id="exit-return">메인 메뉴로</button></div></section>
 <main>
 <header><strong>동아쏘시오그룹</strong><span>조직문화 소통플랫폼 오픈 이벤트</span></header>
-<p id="orientation-tip" role="status">휴대폰을 가로로 돌리면 게임판이 더 크게 보여요.</p><section class="hero"><div class="tag">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</div><h1 aria-label="무궁무진 블랙홀"><span aria-hidden="true"><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">무</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">궁</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">무</span><span class="floating-letter" style="--float-delay:-1.14s;--float-duration:5.03s">진</span> <em><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">블</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">랙</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">홀</span></em></span></h1><div class="hud-controls"><span id="pause" hidden aria-hidden="true"></span><button type="button" id="mobile-optimize" class="secondary" aria-pressed="false" title="모바일 최적화 배치 전환">모바일</button><button type="button" id="sound" class="secondary" aria-pressed="true">음악 켜짐</button><button type="button" id="help-open" class="secondary">게임 방법</button><button type="button" id="fullscreen" class="secondary" aria-pressed="false">전체화면</button><button type="button" id="leaderboard-open" class="secondary">스코어보드</button></div><p class="sub">교차점에서 두 신호가 겹치는 순간, <strong>SPACE</strong>로 포착!</p></section>
+<p id="orientation-tip" role="status">휴대폰을 가로로 돌리면 게임판이 더 크게 보여요.</p><section class="hero"><div class="tag">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</div><h1 aria-label="무궁무진 블랙홀"><span aria-hidden="true"><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">무</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">궁</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">무</span><span class="floating-letter" style="--float-delay:-1.14s;--float-duration:5.03s">진</span> <em><span class="floating-letter" style="--float-delay:-0.00s;--float-duration:4.40s">블</span><span class="floating-letter" style="--float-delay:-0.38s;--float-duration:4.61s">랙</span><span class="floating-letter" style="--float-delay:-0.76s;--float-duration:4.82s">홀</span></em></span></h1><div class="hud-controls"><span id="pause" hidden aria-hidden="true"></span><button type="button" id="mobile-optimize" class="secondary" aria-pressed="false" title="모바일 최적화 배치 전환">모바일</button><button type="button" id="sound" class="secondary" aria-pressed="true">음악 켜짐</button><button type="button" id="help-open" class="secondary">게임 방법</button><button type="button" id="fullscreen" class="secondary" aria-pressed="false">전체화면</button><button type="button" id="leaderboard-open" class="secondary">스코어보드</button><button type="button" id="channel-return" class="secondary" aria-label="무궁무진 소통채널로 돌아가기" title="무궁무진 소통채널로 돌아가기">무궁무진 돌아가기</button></div><p class="sub">교차점에서 두 신호가 겹치는 순간, <strong>SPACE</strong>로 포착!</p></section>
 <div id="network-notice" role="status" hidden><span id="network-message"></span><button type="button" id="network-retry" hidden>다시 연결</button></div><section class="arena" data-state="ready" aria-label="블랙홀 게임"><div class="status hud">
 
 <div class="readouts" role="group" aria-label="미션 현황"><div class="hud-tile"><span>STAGE</span><output id="round">1 / 8</output></div><div class="hud-tile"><span>COMBO</span><output id="combo">0</output></div><div class="hud-tile score-tile"><span>SCORE</span><output id="total">0</output></div></div>
@@ -2024,6 +2030,7 @@ get('leaderboard-open').addEventListener('click',()=>{
   board.showModal();
 });
 get('leaderboard-close').addEventListener('click',()=>board.close());
+get('channel-return').addEventListener('click',()=>location.assign('https://mgmj.donga.co.kr/main'));
 
 const center = [450,174], radius = 392, height = 132, period = (2050 / 1.3) / .8 / .85, turn = Math.PI*2;
 function point(phase){
@@ -3014,6 +3021,7 @@ function renderLayoutButtons(){
   get('sound').textContent=shortLabels?(musicEnabled?'음악 ON':'음악 OFF'):(musicEnabled?'음악 켜짐':'음악 꺼짐');
   get('help-open').textContent=shortLabels?'도움말':'게임 방법';
   get('leaderboard-open').textContent=shortLabels?'순위':'스코어보드';
+  get('channel-return').textContent=shortLabels?'무궁무진':'무궁무진 돌아가기';
   get('fullscreen').textContent=shortLabels?(active?'축소':'전체화면'):(active?'화면 축소':'전체화면');
   get('mobile-optimize').setAttribute('aria-pressed',String(mobileOptimized));
   get('mobile-optimize').setAttribute('aria-label',mobileOptimized?'모바일 최적화 끄기':'모바일 최적화 켜기');
