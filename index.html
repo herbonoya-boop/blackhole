@@ -1403,6 +1403,15 @@ body.performance-rendering.precision-play #orbit-tilt{animation-play-state:pause
 @media(min-width:901px){body:not(.menu-mode) .hero>.hud-controls{max-width:760px}body:not(.menu-mode) .hero #channel-return{flex:1.45 1 0;min-width:142px}}
 @media(max-width:900px){.hero #channel-return{font-size:9px}}
 @media(max-width:600px) and (orientation:portrait){.hero .hud-controls #channel-return::before{display:none}}
+
+:is(button,[role="button"],.channel-return),:is(button,[role="button"],.channel-return) *{user-select:none;-webkit-user-select:none;caret-color:transparent;-webkit-touch-callout:none;cursor:pointer}
+button:disabled,button:disabled *{cursor:default}
+#play:disabled{cursor:default}
+#stage-countdown{position:relative;overflow:hidden;display:inline-block;margin:9px 0 0;padding:7px 12px 9px;border:1px solid #d5a6e54d;border-radius:8px;background:#b58bdf14;color:#f3d4ff;font:400 13px/1.3 "NeoDunggeunmo",monospace;user-select:none;caret-color:transparent}
+#stage-countdown::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#e5b9ff;transform-origin:left;animation:stage-countdown-progress 2s linear forwards}
+@keyframes stage-countdown-progress{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media(max-height:500px){#stage-countdown{font-size:11px;margin-top:5px;padding:5px 10px 7px}}
+@media(prefers-reduced-motion:reduce){#stage-countdown::after{animation:none}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1674,7 +1683,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 </svg>
 <div id="launch-status" hidden role="status" aria-live="polite"><span>출격 준비 중</span></div><div class="impact-veil" aria-hidden="true"></div><div class="action"><button id="play" type="button">시작하기</button></div><p class="hint" id="game-hint" aria-live="polite">무궁이와 무진이의 도전을 시작하세요. <kbd>Space</kbd></p></section>
 <div class="steps"></div>
-<dialog class="result" id="result" aria-labelledby="result-title"><div class="result-overview"><div class="result-header"><p class="tag">MISSION REPORT</p><div class="result-title-row"><h2 id="result-title">싱크로율</h2><p id="result-quip" aria-live="polite"></p></div><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><span id="seal" class="stamp" hidden>등록 완료</span></div><div class="result-metrics"><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p class="score"><span id="score" aria-live="polite"></span></p></div><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div></div><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
+<dialog class="result" id="result" aria-labelledby="result-title"><div class="result-overview"><div class="result-header"><p class="tag">MISSION REPORT</p><div class="result-title-row"><h2 id="result-title">싱크로율</h2><p id="result-quip" aria-live="polite"></p></div><p id="judge" role="status"></p><p id="round-summary" class="hint"></p><p id="stage-countdown" role="status" aria-live="polite" hidden></p><span id="seal" class="stamp" hidden>등록 완료</span></div><div class="result-metrics"><p class="final-score">FINAL SCORE <strong id="final-score">0</strong></p><p class="score"><span id="score" aria-live="polite"></span></p></div><div id="coin-standing" hidden><p id="coin-rank"></p><p id="coin-rank-quip"></p><p id="coin-best-note" class="hint"></p></div></div><div class="action" id="result-actions"><button type="button" id="next-round" hidden>다음 스테이지 · Space</button><button type="button" id="certify">스코어보드에 올리기 · Enter</button><span id="retry" hidden></span></div><form id="form" class="form" hidden><label for="employee">사번<input id="employee" required maxlength="30" autocomplete="off" placeholder="본인 사번을 입력하세요"></label><button id="stamp" type="submit">스코어보드에 올리기</button><button id="capture" class="secondary" type="button" disabled>캡처 저장</button><button id="result-restart" class="secondary" type="button">새로하기</button><button id="result-board" class="secondary" type="button">스코어보드 보러가기</button></form><p class="hint" id="notice" role="status" hidden></p><button type="button" class="secondary" id="back" hidden>결과로 돌아가기</button></dialog>
 <dialog class="result scoreboard" id="leaderboard" aria-labelledby="leaderboard-title">
 <p class="tag">HALL OF FAME</p><h2 id="leaderboard-title">무궁무진 스코어보드</h2>
 <p class="leaderboard-prize"><span>12월 18일까지 TOP 100에게는</span> <span><strong>3만원 상당의 선물 지급 예정!!</strong></span></p>
@@ -1687,7 +1696,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 <p class="tag">MISSION GUIDE</p><h2 id="help-title">무진이 구출 작전</h2>
 <p class="help-intro">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</p>
 <ol class="help-steps">
-<li><strong>미션 시작</strong><p>버튼 또는 Space로 1코인, 총 8개 스테이지을 시작하세요. 각 결과에서 Space 또는 ‘다음 스테이지’을 누르면 다음 스테이지로 이어집니다.</p></li>
+<li><strong>미션 시작</strong><p>버튼 또는 Space로 1코인, 총 8개 스테이지을 시작하세요. 결과는 2초 뒤 자동으로 넘어갑니다. Space로 바로 진행할 수 있어요.</p></li>
 <li><strong>중앙 블랙홀을 노려라!</strong><p>두 캐릭터가 중앙에서 겹치는 순간 Space 또는 ‘스톱!’를 누르세요. 중앙에 가까울수록 싱크로율이 높아집니다.</p></li>
 <li><strong>90% 이상이면 콤보!</strong><p>한 번의 도전은 1코인이며, 총 8개 스테이지로 구성됩니다. 싱크로율 90% 이상이면 콤보 +1, 90% 미만이면 콤보가 0이 됩니다. 실패해도 8단계까지 계속 진행하며, 스테이지마다 속도와 궤도의 기울기가 조금씩 올라갑니다.</p></li>
 <li><strong>기록 인증하기</strong><p>8개 스테이지가 끝나면 결과 화면에서 사번을 입력하고 ‘스코어보드에 올리기’를 누르세요. 최고 기록이 등록되고 순위가 표시됩니다.</p></li>
@@ -2134,6 +2143,7 @@ const defaultNotice='';
 const pause=get('pause'), total=get('total'), combo=get('combo');
 const arena=play.closest('.arena'), gameHint=get('game-hint'), sound=get('sound');
 let state='ready', started=0, phase=.92, offset=.92, frame=0, score='', stamped='';
+let stageCountdownTimer,stageCountdownGeneration=0;
 let finaleFrame=0,finaleTimer,finaleGeneration=0,launchGeneration=0;
 let points=0, streak=0, pausedAt=0, round=1, maxCombo=0, perfects=0, roundScores=[];
 let audio, master, musicTimer, nextBeat, beatIndex=0, musicEnabled=true;
@@ -2257,6 +2267,7 @@ function updateHud(){
 
 }
 function ready(){
+  clearStageCountdown();
   launchGeneration++;
   cancelFinalCelebration();
   certifiedStanding=null;certificateRun++;
@@ -2352,6 +2363,7 @@ async function launchMission(){
 }
 async function start(){
   if(state==='connecting') return;
+  clearStageCountdown();
   let serverStage=null;
   if(serverMode){
     setState('connecting');play.disabled=true;
@@ -2747,7 +2759,31 @@ function activate(event){
   else if(state==='finished') showResult();
   else if(state==='ready') openBriefing();
 }
+function clearStageCountdown(){
+  clearInterval(stageCountdownTimer);
+  stageCountdownTimer=undefined;
+  stageCountdownGeneration++;
+  get('stage-countdown').hidden=true;
+}
+function startStageCountdown(){
+  clearStageCountdown();
+  if(roundScores.length>=8)return;
+  const generation=stageCountdownGeneration,stage=round,deadline=performance.now()+2000;
+  const countdown=get('stage-countdown');
+  countdown.textContent='2초 후 다음 스테이지';
+  countdown.hidden=false;
+  stageCountdownTimer=setInterval(()=>{
+    if(generation!==stageCountdownGeneration)return;
+    if(!result.open||state!=='finished'||round!==stage){clearStageCountdown();return;}
+    const remaining=Math.max(0,Math.ceil((deadline-performance.now())/1000));
+    if(remaining===0){clearStageCountdown();get('next-round').click();return;}
+    const message=remaining+'초 후 다음 스테이지';
+    if(countdown.textContent!==message)countdown.textContent=message;
+  },100);
+}
+result.addEventListener('close',clearStageCountdown);
 function showResult(){
+  clearStageCountdown();
   const complete=roundScores.length===8;
   result.dataset.complete=String(complete);
   get('coin-standing').hidden=!complete||!stamped;
@@ -2756,6 +2792,7 @@ function showResult(){
   get('next-round').textContent='다음 스테이지 · '+(round+1)+'단계 · Space';
   get('round-summary').textContent=complete?'최대 '+maxCombo+'콤보 · 퍼펙트 '+perfects+'회 (+'+(perfects*500).toLocaleString('ko-KR')+'점)':'현재 '+streak+'콤보 · 최대 '+maxCombo+'콤보 · 다음 스테이지 속도 UP';
   get('next-round').hidden=complete;
+  get('next-round').disabled=false;
   get('certify').hidden=true;
   retry.hidden=true;
   resultActions.hidden=false;
@@ -2764,6 +2801,7 @@ function showResult(){
   back.hidden=true;
   if(!result.open) result.showModal();
   (complete?employee:get('next-round')).focus();
+  if(!complete)startStageCountdown();
 }
 get('certify').addEventListener('click',()=>{
   resultActions.hidden=true;
@@ -2774,7 +2812,9 @@ get('certify').addEventListener('click',()=>{
   employee.focus();
 });
 get('next-round').addEventListener('click',()=>{
-  if(roundScores.length!==round||round>=8) return;
+  if(state!=='finished'||roundScores.length!==round||round>=8) return;
+  clearStageCountdown();
+  get('next-round').disabled=true;
   round++;
   updateHud();
   start();
