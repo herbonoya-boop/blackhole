@@ -12,6 +12,7 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     await db.exec("update blackhole.events set status='active',starts_at=now()-interval '1 day',ends_at=now()+interval '1 day';");
     await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/stage-progression.sql'), 'utf8'));
     await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/personal-leaderboard.sql'), 'utf8'));
+    await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/record-celebration.sql'), 'utf8'));
     const token = 'a'.repeat(64), network = 'b'.repeat(64);
     async function rpc(name, args) {
       const placeholders = args.map((_, i) => `$${i + 1}`).join(',');
@@ -43,6 +44,8 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     await assert.rejects(rpc('bh_submit_coin', [winner.id, 'c'.repeat(64), 'A000001']), /INVALID_SESSION/);
     const registered = await rpc('bh_submit_coin', [winner.id, token, 'A000001']);
     assert.equal(registered.rank, 1);
+    assert.equal(registered.newRecord,true);
+    assert.equal(registered.previousBestScore,null);
     const repeated = await rpc('bh_submit_coin', [winner.id, token, 'A000001']);
     assert.ok(Date.parse(repeated.rankedAt) >= Date.parse(registered.rankedAt));
     const { rankedAt: firstRankTime, ...originalResult } = registered;
@@ -52,6 +55,8 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     const worse = await coin(false);
     const lower = await rpc('bh_submit_coin', [worse.id, token, 'A000001']);
     assert.equal(lower.score, 0);
+    assert.equal(lower.newRecord,false);
+    assert.equal(lower.previousBestScore,24800);
     assert.equal(lower.bestScore, 24800);
     const runnerUp = await coin(true);
     const second = await rpc('bh_submit_coin', [runnerUp.id, token, '000002']);
@@ -91,6 +96,18 @@ test('eight-stage scoring, retries, personal bests, privacy and closing time', a
     assert.equal(ownOutside.ownRecord.employee, 'A***498');
     assert.equal(ownOutside.ownRecord.score, 0);
     assert.equal(JSON.stringify(ownOutside).includes('A000498'), false);
+    const improvedCoin=await coin(true);
+    const improved=await rpc('bh_submit_coin',[improvedCoin.id,token,'A000498']);
+    assert.equal(improved.newRecord,true);
+    assert.equal(improved.previousBestScore,0);
+    assert.equal(improved.score,24800);
+    const tiedCoin=await coin(true);
+    const tied=await rpc('bh_submit_coin',[tiedCoin.id,token,'A000498']);
+    assert.equal(tied.newRecord,false);
+    assert.equal(tied.previousBestScore,24800);
+    const retried=await rpc('bh_submit_coin',[improvedCoin.id,token,'A000498']);
+    assert.equal(retried.previousBestScore,0);
+    assert.equal(retried.newRecord,true);
     const personalPermission = await db.query("select has_function_privilege('anon','public.bh_personal_leaderboard(uuid,text)','EXECUTE') as allowed");
     assert.equal(personalPermission.rows[0].allowed, false);
     const permission = await db.query("select has_function_privilege('anon','public.bh_leaderboard(text)','EXECUTE') as allowed");

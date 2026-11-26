@@ -115,3 +115,10 @@ Vercel에서 이 저장소를 가져오면 `vercel.json`이 다음 설정을 적
 글꼴과 이미지의 원래 제작자 안내는 게임 HTML 안에 유지합니다.
 
 서버 함수와 권한 구성은 [Supabase 함수 문서](https://supabase.com/docs/guides/database/functions), 새 비밀 키 처리 방식은 [API 키 이전 안내](https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys), 배포 구성은 [Vercel Node.js 문서](https://vercel.com/docs/functions/runtimes/node-js)를 기준으로 작성했습니다.
+
+
+## 플레이 완성도 업그레이드
+
+첫 방문 시 느린 연습 1회가 기본 선택되며 건너뛸 수 있습니다. 연습은 API에 코인을 생성하거나 점수를 저장하지 않습니다. 최종 화면에는 8단계 싱크로율과 콤보·퍼펙트 보너스가 표시됩니다. 자동 품질 조절은 프레임 지연에 따라 배경 효과부터 줄이며 점수 판정과 속도는 변경하지 않습니다.
+
+기존 Supabase 프로젝트에서는 `supabase/record-celebration.sql` 전체를 SQL Editor에서 한 번 실행하세요. 서버가 이전 최고점과 갱신 여부를 반환하게 됩니다. 적용 전에도 게임과 기록 제출은 동작하지만 서버 기록 갱신 축하 배너는 표시되지 않습니다. 새 프로젝트는 최신 `schema.sql`에 포함되어 있습니다.

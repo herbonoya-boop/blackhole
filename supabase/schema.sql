@@ -39,6 +39,7 @@ create table if not exists blackhole.coins (
   completed_at timestamptz,
   unique (event_id, id)
 );
+create index if not exists coins_employee_score on blackhole.coins(event_id,employee_id,score desc) where submitted_at is not null;
 create index if not exists coins_network_time on blackhole.coins(event_id, network_hash, created_at);
 create index if not exists coins_device_time on blackhole.coins(event_id, token_hash, created_at);
 
@@ -200,7 +201,7 @@ $$;
 create or replace function public.bh_submit_coin(p_coin_id uuid, p_token_hash text, p_employee text)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare c blackhole.coins; b blackhole.best_scores; employee text:=btrim(p_employee);
-  v_rank bigint; v_count bigint; e blackhole.events;
+  v_rank bigint; v_count bigint; e blackhole.events; v_previous integer;
 begin
   c := blackhole.lock_coin(p_coin_id,p_token_hash);
   if employee is null or employee !~ '^[A-Za-z0-9_-]{1,30}$' then raise exception 'INVALID_EMPLOYEE'; end if;
@@ -230,7 +231,8 @@ begin
     from blackhole.best_scores where event_id=c.event_id
   ) ranked where employee_id=employee;
   select count(*) into v_count from blackhole.best_scores where event_id=c.event_id;
-  return jsonb_build_object('rank',v_rank,'participants',v_count,'rankedAt',clock_timestamp(),'score',c.score,'bestScore',b.score,
+  select max(score) into v_previous from blackhole.coins where event_id=c.event_id and employee_id=employee and submitted_at is not null and id<>c.id and (submitted_at,id)<(select submitted_at,id from blackhole.coins where id=c.id);
+  return jsonb_build_object('previousBestScore',v_previous,'newRecord',c.score>coalesce(v_previous,-1),'rank',v_rank,'participants',v_count,'rankedAt',clock_timestamp(),'score',c.score,'bestScore',b.score,
     'accuracy',round(c.sum_accuracy/8,2),'maxCombo',c.max_combo,'perfects',c.perfect_count);
 end;
 $$;

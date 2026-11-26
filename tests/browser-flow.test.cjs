@@ -13,7 +13,7 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
       events: {}, textContent: '',
       addEventListener(name, handler) { this.events[name] = handler; },
       setAttribute() {}, removeAttribute() {}, focus() {}, closest() { return node('arena'); },
-      querySelector() { return { focus() {} }; }, showModal() { this.open = true; }, close() { this.open = false; },
+      querySelector() { return { focus() {}, replaceChildren() {}, append() {} }; }, showModal() { this.open = true; }, close() { this.open = false; },
       replaceChildren() {}, append() {}, setCustomValidity() {}, reportValidity() {}
     });
     return nodes.get(id);
@@ -22,8 +22,8 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
   const context = vm.createContext({
     console, location: { protocol: 'https:' }, screen: {}, AbortSignal,
     performance: { now: () => clockNow }, localStorage: { getItem: () => null, setItem() {} },
-    document: { body: { classList }, fonts: { ready: { then() {} } }, getElementById: node,
-      addEventListener() {}, createElement: () => ({ append() {}, classList, setAttribute() {} }) },
+    document: { body: { classList, dataset: {} }, fonts: { ready: { then() {} } }, getElementById: node,
+      addEventListener() {}, createElement: () => ({ dataset:{}, append() {}, classList, setAttribute() {} }) },
     window: { addEventListener() {}, matchMedia() { return { matches: false, addEventListener() {} }; } },
     setTimeout(callback) { timers.push(callback); }, requestAnimationFrame: () => 1, cancelAnimationFrame() {},
     setInterval() {}, clearInterval() {}, clearTimeout() {},
@@ -66,7 +66,7 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
     clockNow=run('started+(Math.PI-offset)*stagePeriod/turn');
     run('stop();');
     await settle();
-    await timers.shift()();
+    while(timers.length){await timers.shift()();await settle();}
     if (configured && stage === 1) {
       assert.equal(node('network-notice').hidden, false);
       assert.equal(run('state'), 'settling');
