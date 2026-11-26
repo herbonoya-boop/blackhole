@@ -52,10 +52,16 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
   const run = code => vm.runInContext(code, context);
   const settle = () => new Promise(resolve => setImmediate(resolve));
   await run('launchMission()');
+  await settle();
   assert.equal(requests[0].action, 'config');
   assert.equal(requests.some(item=>item.action==='create'),configured);
+  assert.equal(requests.filter(item=>item.action==='start').length,configured?1:0);
+  assert.equal(node('arena').dataset.launch,'waiting');
   while (timers.length) { await timers.shift()(); await settle(); }
   assert.equal(run('state'), 'running');
+  assert.equal(node('arena').dataset.launch,'');
+  assert.equal(requests.filter(item=>item.action==='start').length,configured?1:0);
+  if(configured)assert.equal(run('phase'),1.1);
   for (let stage = 1; stage <= 8; stage++) {
     clockNow=run('started+(Math.PI-offset)*stagePeriod/turn');
     run('stop();');

@@ -2321,23 +2321,18 @@ function clearStamp(){
   capture.disabled=true;
   get('notice').textContent=defaultNotice;
 }
+function warmLaunchImages(){
+  if(typeof Image==='undefined')return;
+  const sources=characterNodes.map(character=>get('cached-art-'+character.id).querySelector('.mobile-happy'));
+  sources.push(get('stage-nebula-image'));
+  for(const source of sources){
+    if(!source)continue;
+    const image=new Image();image.src=source.getAttribute('href');
+    image.decode().catch(()=>{});
+  }
+}
 async function launchMission(){
-  try{await ensureGameMode();}catch(error){
-    setState('ready');play.disabled=false;networkNotice(error.message,launchMission);return;
-  }
-  if(serverMode&&!serverCoin){
-    setState('connecting');play.disabled=true;
-    networkNotice('도전 준비 중…',null);
-    try{
-      const created=await gameRequest('create',{});
-      serverCoin=created.coinId;
-      networkNotice('',null);
-    }catch(error){
-      setState('ready');play.disabled=false;
-      networkNotice(error.message,launchMission);
-      return;
-    }
-  }
+  if(state==='launching'||state==='connecting')return;
   const generation=++launchGeneration;
   setState('launching');
   unlockMusic();
@@ -2345,27 +2340,43 @@ async function launchMission(){
   play.textContent='';
   gameHint.textContent='';
   arena.dataset.launch='waiting';
+  warmLaunchImages();
+  const firstStage=(async()=>{
+    await ensureGameMode();
+    if(generation!==launchGeneration)return {stage:null};
+    if(serverMode&&!serverCoin){
+      const created=await gameRequest('create',{});
+      if(generation!==launchGeneration)return {stage:null};
+      serverCoin=created.coinId;
+    }
+    const stage=serverMode?await gameRequest('start',{coinId:serverCoin,stage:round}):null;
+    return {stage};
+  })().catch(error=>({error}));
   setTimeout(()=>{
     if(generation!==launchGeneration||state!=='launching') return;
     document.body.classList.add('mission-space');
   },900);
-  setTimeout(()=>{
-    if(generation!==launchGeneration||state!=='launching') return;
-    arena.dataset.launch='';
-    arena.classList.remove('blackhole-opening');
-    for(const id of ['line','rail']) get(id).removeAttribute('pathLength');
+  setTimeout(async()=>{
+    if(generation!==launchGeneration||state!=='launching')return;
+    const prepared=await firstStage;
+    if(generation!==launchGeneration||state!=='launching')return;
+    if(prepared.error){
+      setState('ready');play.disabled=false;play.textContent='미션 시작';
+      networkNotice(prepared.error.message,launchMission);
+      return;
+    }
     if(audio?.state==='running'&&musicEnabled){
       tone(43,audio.currentTime,.24,.3,'triangle');
       tone(79,audio.currentTime+.08,.3,.16,'sine');
     }
-    start();
+    start(prepared.stage);
   },4700);
 }
-async function start(){
+async function start(preparedStage=null){
   if(state==='connecting') return;
   clearStageCountdown();
-  let serverStage=null;
-  if(serverMode){
+  let serverStage=preparedStage;
+  if(serverMode&&!serverStage){
     setState('connecting');play.disabled=true;
     networkNotice('스테이지 연결 중…',null);
     try{
@@ -2389,8 +2400,11 @@ async function start(){
   offset=serverStage?serverStage.offset:.85+Math.random()*.65;
   stagePeriod=serverStage?serverStage.period:period/(1+(round-1)*.035);
   phase=offset;
-  started=performance.now();
   paint(phase);
+  started=performance.now();
+  arena.classList.remove('blackhole-opening');
+  for(const id of ['line','rail'])get(id).removeAttribute('pathLength');
+  arena.dataset.launch='';
   frame=requestAnimationFrame(tick);
 }
 function togglePause(){
