@@ -1502,6 +1502,15 @@ body.mobile-rendering:not(.menu-mode) .arena #play{width:68px;height:68px;min-he
 #judgement-guides .perfect-zone-base{fill:url(#perfect-zone-gradient);fill-opacity:1;stroke:#ffb0e4;stroke-opacity:.8}#perfect-zone{stroke:#ffb0e4;stroke-opacity:1}#judgement-guides .judgement-center{fill:#fff5fd;stroke:#ff5cbd}
 #help .help-judgement-key .key-perfect{color:#ffb0e4}#help .help-judgement-key .key-combo{color:#fc2baa}
 #combo-zone{stroke-dasharray:1.4 1.6;stroke-dashoffset:0;stroke-width:1.15;stroke-linecap:round;stroke-opacity:.95}
+/* Avoid mixing a moving 3D SVG with screen-wide additive flashes. */
+.arena>svg{isolation:isolate}
+.arena #black-hole .nebula-whirl,#smash,#combo-impact{mix-blend-mode:normal}
+.arena[data-state="settling"][data-combo-hit="true"]>svg,.arena[data-state="settling"][data-hit="true"]>svg{animation:none!important;transform:none!important}
+.impact-veil{mix-blend-mode:normal}
+.arena[data-state="settling"][data-combo-hit="true"] .impact-veil{animation:impact-soft-pulse .45s ease-out both}
+#hit-feedback.hit-perfect{animation:none;background:none}
+@keyframes impact-soft-pulse{0%{opacity:0}18%{opacity:.28}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.arena[data-state="settling"][data-combo-hit="true"] .impact-veil{animation:none;opacity:0}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
