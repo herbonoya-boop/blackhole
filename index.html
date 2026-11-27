@@ -1345,7 +1345,7 @@ body.performance-rendering.precision-play #stars,body.performance-rendering.prec
 /* Short unfiltered trails update each frame without moving between depth layers. */
 #trailA,#trailB{filter:none!important;stroke-linejoin:round}
 
-body.performance-rendering.precision-play #orbit-tilt{animation-play-state:paused}
+/* Keep the orbit moving when background quality is reduced. */
 
 /* A wider, slower orbit tilt makes front/back motion easier to read. */
 #orbit-tilt{animation-duration:18s}
@@ -1443,6 +1443,9 @@ body[data-graphics="2"] #ambient-stars i:nth-child(3n),body[data-graphics="2"] .
 #perfect-burst-text{display:none!important}
 #menu-channel{font:400 11px "DNFBitBitv2",sans-serif;min-height:36px;padding:6px 10px;color:#fff}
 @media(max-width:600px){.menu-top{flex-wrap:wrap;gap:8px}.menu-screen-actions{margin-left:auto;max-width:100%;flex-wrap:wrap;justify-content:flex-end}#menu-channel,#menu-qr,#menu-optimize,#menu-mobile{font-size:9px;padding:6px 7px;min-height:32px}}
+/* Moving SVG blur surfaces are expensive to repaint; the layered ribbon keeps its depth. */
+.arena[data-state="running"] #orbit-tilt :is(path,circle,ellipse,g){filter:none!important}
+body.performance-rendering.precision-play #ambient-stars i,body.performance-rendering.precision-play .meteor{animation-play-state:paused!important}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -2115,13 +2118,18 @@ function placeCharacterLayer(id,depth){
 
 }
 const orbitTilt=get('orbit-tilt');
-let lastOrbitTransform='',orbitProjection=null;
+let lastOrbitTransform='',orbitProjection=null,orbitFaceTransform='',orbitProjectionDirty=true;
+function invalidateOrbitProjection(){orbitProjectionDirty=true;lastOrbitTransform='';}
+window.addEventListener('resize',invalidateOrbitProjection);
+mobileRenderMedia.addEventListener('change',invalidateOrbitProjection);
 function readOrbitProjection(){
   if(typeof getComputedStyle==='undefined')return null;
+  const mobile=document.body.classList.contains('mobile-rendering');
+  // A static mobile plane only needs a layout measurement after a viewport or stage change.
+  if(mobile&&!orbitProjectionDirty&&orbitProjection)return orbitProjection;
   const transform=getComputedStyle(orbitTilt).transform;
-  const key=transform+'|'+document.body.className+'|'+window.innerWidth+'x'+window.innerHeight;
-  if(key===lastOrbitTransform)return orbitProjection;
-  if(document.body.classList.contains('mobile-rendering')&&typeof orbitTilt.getScreenCTM==='function'){
+  if(!orbitProjectionDirty&&transform===lastOrbitTransform)return orbitProjection;
+  if(mobile&&typeof orbitTilt.getScreenCTM==='function'){
     const screen=orbitTilt.getScreenCTM(),base=get('playfield').getScreenCTM();
     if(!screen||!base)return null;
     const scale=Math.hypot(base.a,base.b);
@@ -2131,15 +2139,15 @@ function readOrbitProjection(){
     if(typeof DOMMatrixReadOnly==='undefined')return null;
     orbitProjection=new DOMMatrixReadOnly(transform);
   }
-  lastOrbitTransform=key;
+  lastOrbitTransform=transform;orbitProjectionDirty=false;
+  const {m11:a,m12:b,m21:c,m22:d}=orbitProjection,det=a*d-b*c;
+  orbitFaceTransform=Math.abs(det)<.01?'':'matrix('+[d/det,-b/det,-c/det,a/det,0,0].map(v=>Number(v.toFixed(5))).join(' ')+')';
   return orbitProjection;
 }
 function faceCharacterToCamera(character,matrix){
-  if(!matrix)return;
-  // SVG flattens the rotating plane before painting its sprite children.
-  const a=matrix.m11,b=matrix.m12,c=matrix.m21,d=matrix.m22,determinant=a*d-b*c;
-  if(Math.abs(determinant)<.01)return;
-  character.face.setAttribute('transform','matrix('+[d/determinant,-b/determinant,-c/determinant,a/determinant,0,0].join(' ')+')');
+  if(!matrix||!orbitFaceTransform||character.lastFaceTransform===orbitFaceTransform)return;
+  character.face.setAttribute('transform',orbitFaceTransform);
+  character.lastFaceTransform=orbitFaceTransform;
 }
 function mujinPhase(phase){return phase+Math.PI;}
 function paint(phase){
@@ -2177,10 +2185,7 @@ function paint(phase){
   }
 }
 function pairDistance(phase){
-  return Math.max(...[phase,mujinPhase(phase)].map(at=>{
-    const [x,y]=point(at);
-    return Math.hypot(x-center[0],y-center[1]);
-  }));
+  return Math.hypot(radius*Math.sin(phase),height*Math.sin(2*phase));
 }
 function accuracy(distance){
   if(!strictJudgement){
@@ -2293,6 +2298,7 @@ const stagePalettes=[
   ['#f17cbb','#ffd6ef','#45213d'],['#ffe29a','#fff8df','#4a2949']
 ];
 function updateHud(){
+  invalidateOrbitProjection();
   total.textContent=points.toLocaleString('ko-KR');
   combo.textContent=String(streak);
   get('round').textContent=round+' / 8';
@@ -2444,6 +2450,7 @@ async function launchMission(){
 async function start(preparedStage=null){
   if(state==='connecting') return;
   clearStageCountdown();
+  invalidateOrbitProjection();
   if(performanceRecovery>=4){applyGraphicsLevel(Math.max(0,graphicsLevel-1));performanceRecovery=0;}
   performanceLastFrame=0;performanceSamples=0;performanceSlowFrames=0;
   let serverStage=preparedStage;
@@ -3207,6 +3214,7 @@ function renderLayoutButtons(){
   get('menu-optimize').textContent=mobileOptimized?'기본 화면':'모바일 최적화';
 }
 function setMobileOptimized(enabled){
+  invalidateOrbitProjection();
   mobileOptimized=enabled;
   document.body.classList.toggle('mobile-optimized',enabled);
   updateRenderMode();
@@ -3238,7 +3246,7 @@ function scheduleViewportRefresh(){
   if(viewportRefresh) return;
   viewportRefresh=requestAnimationFrame(()=>{
     viewportRefresh=0;
-    fitGameViewport();syncResultViewport();
+    fitGameViewport();syncResultViewport();invalidateOrbitProjection();
     if(window.innerWidth!==lastHeadingWidth){
       lastHeadingWidth=window.innerWidth;
       fitMissionHeading();fitOpeningMission();
