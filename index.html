@@ -2302,18 +2302,27 @@ const stagePalettes=[
   ['#edce7e','#fff4cd','#42351f'],['#f6a47c','#ffe4ca','#472b27'],
   ['#f17cbb','#ffd6ef','#45213d'],['#ffe29a','#fff8df','#4a2949']
 ];
-function updateHud(){
+const stageImageCache=new Map();
+function warmStageImage(stageNumber){
+  if(typeof Image==='undefined')return Promise.resolve();
+  for(const key of stageImageCache.keys())if(key<stageNumber-1||key>stageNumber)stageImageCache.delete(key);
+  if(stageImageCache.has(stageNumber))return stageImageCache.get(stageNumber).ready;
+  const image=new Image();image.src=stageNebulaSources[stageNumber-1];
+  const ready=typeof image.decode==='function'?image.decode().catch(()=>{}):Promise.resolve();
+  stageImageCache.set(stageNumber,{image,ready});return ready;
+}
+function applyStageVisuals(stageNumber){
+  if(renderedNebulaStage===stageNumber-1)return;
   invalidateOrbitProjection();
-  total.textContent=points.toLocaleString('ko-KR');
-  combo.textContent=String(streak);
-  get('round').textContent=round+' / 8';
-  const stage=round-1,palette=stagePalettes[stage];
+  const animation=typeof orbitTilt.getAnimations==='function'?orbitTilt.getAnimations().find(item=>item.animationName==='orbit-three-d'):null;
+  const oldDuration=animation?.effect?.getTiming().duration,oldTime=animation?.currentTime;
+  const stage=stageNumber-1,palette=stagePalettes[stage];
   if(renderedNebulaStage!==stage){
     get('stage-nebula-image').setAttribute('href',stageNebulaSources[stage]);
     renderedNebulaStage=stage;
-    if(typeof Image!=='undefined'&&stage<7){const nextNebula=new Image();nextNebula.src=stageNebulaSources[stage+1];}
+    if(stage<7)warmStageImage(stage+2);
   }
-  arena.dataset.stage=String(round);
+  arena.dataset.stage=String(stageNumber);
   arena.style.setProperty('--stage-color',palette[0]);
   arena.style.setProperty('--stage-light',palette[1]);
   arena.style.setProperty('--stage-dark',palette[2]);
@@ -2324,12 +2333,34 @@ function updateHud(){
   arena.style.setProperty('--stage-flow-time',Math.max(.45,3.2*Math.pow(.76,stage)).toFixed(3)+'s');
   arena.style.setProperty('--stage-rotation-time',(18-stage*.6)+'s');
   const tilt=32+stage*3;
-  const swing=22+(round-1)*2;
+  const swing=22+(stageNumber-1)*2;
   arena.style.setProperty('--tilt-x',tilt+'deg');
   arena.style.setProperty('--tilt-y',swing+'deg');
-  arena.style.setProperty('--tilt-z',(3+(round-1)*.4)+'deg');
+  arena.style.setProperty('--tilt-z',(3+(stageNumber-1)*.4)+'deg');
+
+  // CSS otherwise reinterprets elapsed time at the new duration and jumps to another pose.
+  if(animation&&Number.isFinite(oldTime)&&Number.isFinite(oldDuration)&&oldDuration>0){
+    animation.effect.getComputedTiming();
+    animation.currentTime=oldTime*(18-(stageNumber-1)*.6)*1000/oldDuration;
+  }
+}
+function prepareNextStageVisuals(){
+  const current=round,generation=launchGeneration;
+  warmStageImage(current+1).then(()=>{
+    if(generation!==launchGeneration||round!==current||state!=='finished'||!result.open)return;
+    applyStageVisuals(current+1);
+  });
+}
+function updateHud(){
+  total.textContent=points.toLocaleString('ko-KR');
+  combo.textContent=String(streak);
+  get('round').textContent=round+' / 8';
+  applyStageVisuals(round);
   combo.classList.remove('bump');
-  if(streak){void combo.offsetWidth;combo.classList.add('bump');}
+  if(streak){
+    if(typeof combo.animate==='function')combo.animate([{transform:'scale(1)'},{transform:'scale(1.14)'},{transform:'scale(1)'}],{duration:280,easing:'ease-out'});
+    else combo.classList.add('bump');
+  }
 
 }
 function ready(){
@@ -2473,7 +2504,6 @@ async function start(preparedStage=null){
   }
   cancelAnimationFrame(frame);
   for(const id of ['ballA','ballB']) get(id).style.opacity='';
-  if(result.open) result.close();
   arena.dataset.judge='';arena.dataset.hit='false';arena.dataset.sad='false';arena.dataset.comboHit='false';
   unlockMusic();
   setState('running');
@@ -2485,6 +2515,7 @@ async function start(preparedStage=null){
   stagePeriod=serverStage?serverStage.period:period/(1+(round-1)*.035);
   phase=offset;
   paint(phase);
+  if(result.open)result.close();
   started=performance.now();
   arena.classList.remove('blackhole-opening');
   for(const id of ['line','rail'])get(id).removeAttribute('pathLength');
@@ -2916,6 +2947,7 @@ function clearStageCountdown(){
 function startStageCountdown(){
   clearStageCountdown();
   if(roundScores.length>=8)return;
+  prepareNextStageVisuals();
   const generation=stageCountdownGeneration,stage=round,deadline=performance.now()+2000;
   const countdown=get('stage-countdown');
   countdown.textContent='2초 후 다음 스테이지';
