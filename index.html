@@ -1511,6 +1511,9 @@ body.mobile-rendering:not(.menu-mode) .arena #play{width:68px;height:68px;min-he
 #hit-feedback.hit-perfect{animation:none;background:none}
 @keyframes impact-soft-pulse{0%{opacity:0}18%{opacity:.28}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.arena[data-state="settling"][data-combo-hit="true"] .impact-veil{animation:none;opacity:0}}
+#leaderboard table{width:100%;table-layout:fixed}body #leaderboard.scoreboard th:nth-child(1){width:9%}body #leaderboard.scoreboard th:nth-child(2){width:29%}body #leaderboard.scoreboard th:nth-child(3){width:17%}body #leaderboard.scoreboard th:nth-child(4){width:16%}body #leaderboard.scoreboard th:nth-child(5){width:19%}body #leaderboard.scoreboard th:nth-child(6){width:10%}
+#rankings td:nth-child(3){white-space:nowrap;font-family:"NeoDunggeunmo",monospace;font-size:12px;color:#b9abc9;letter-spacing:0}#leaderboard :is(th,td):nth-child(2){text-align:left}
+@media(max-width:520px){#rankings td:nth-child(2){font-size:11px}#rankings td:nth-child(3){font-size:10px}#leaderboard :is(th,td){padding-left:3px;padding-right:3px}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1787,11 +1790,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 <p class="tag">HALL OF FAME</p><h2 id="leaderboard-title">무궁무진 스코어보드</h2>
 <p class="leaderboard-prize"><span>12월 18일까지 TOP 100에게는</span> <span><strong>3만원 상당의 선물 지급 예정!!</strong></span></p>
 <p class="hint">8개 스테이지 · 사번별 최고 스코어 · TOP 100</p>
-<table><thead><tr><th scope="col">순위</th><th scope="col">닉네임</th><th scope="col">스코어</th><th scope="col">평균 싱크로율</th><th scope="col">콤보</th></tr></thead><tbody id="rankings"></tbody></table>
+<table><thead><tr><th scope="col">순위</th><th scope="col">닉네임</th><th scope="col">사번</th><th scope="col">스코어</th><th scope="col">평균 싱크로율</th><th scope="col">콤보</th></tr></thead><tbody id="rankings"></tbody></table>
 <p id="ranking-empty" class="hint">첫 기록의 주인공이 되어보세요!</p>
 <p id="ranking-status" class="hint" role="status"></p>
 <button type="button" id="leaderboard-close" class="secondary">게임으로 돌아가기</button><a id="communication-channel" class="channel-return" href="https://mgmj.donga.co.kr/main">무궁무진 소통채널로 돌아가기</a></dialog>
-<dialog id="mobile-qr-dialog" class="result" aria-labelledby="mobile-qr-title"><h2 id="mobile-qr-title">모바일로 플레이</h2><p>휴대폰 카메라로 QR을 스캔하세요.</p><img class="mobile-qr-image" src="data:image/png;base64,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" width="512" height="512" alt="무궁무진 블랙홀 모바일 게임 접속 QR 코드"><p class="mobile-qr-note">휴대폰에서 게임이 바로 열려요!</p><button type="button" id="mobile-qr-close">닫기</button></dialog><dialog id="top100-dialog" class="result" aria-labelledby="top100-title"><div class="top100-sparks" aria-hidden="true"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i><i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i><i style="--i:12"></i><i style="--i:13"></i><i style="--i:14"></i><i style="--i:15"></i></div><p class="top100-badge">HALL OF FAME</p><h2 id="top100-title">TOP 100에 올랐습니다!</h2><p id="top100-rank"></p><p class="nickname-intro">스코어보드에 남길 나만의 이름을 골라보세요.<br>우리 그룹 키워드를 조합해 만들어드려요!</p><output id="nickname-candidate" aria-live="polite">닉네임을 준비하고 있어요…</output><p id="nickname-status" role="status"></p><div class="nickname-actions"><button type="button" id="nickname-reroll" class="secondary">다른 이름 뽑기</button><button type="button" id="nickname-confirm">이 이름으로 등록!</button></div><p class="top100-note">확정한 이름은 다음 도전에도 이어집니다.<br>순위는 이벤트 종료 전까지 변동될 수 있습니다.</p><div class="top100-nav"><button type="button" id="top100-close" class="secondary">결과로 돌아가기</button></div></dialog><dialog id="help" class="result help-dialog" aria-labelledby="help-title">
+<dialog id="mobile-qr-dialog" class="result" aria-labelledby="mobile-qr-title"><h2 id="mobile-qr-title">모바일로 플레이</h2><p>휴대폰 카메라로 QR을 스캔하세요.</p><img class="mobile-qr-image" src="data:image/png;base64,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" width="512" height="512" alt="무궁무진 블랙홀 모바일 게임 접속 QR 코드"><p class="mobile-qr-note">휴대폰에서 게임이 바로 열려요!</p><button type="button" id="mobile-qr-close">닫기</button></dialog><dialog id="top100-dialog" class="result" aria-labelledby="top100-title"><div class="top100-sparks" aria-hidden="true"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i><i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i><i style="--i:12"></i><i style="--i:13"></i><i style="--i:14"></i><i style="--i:15"></i></div><p class="top100-badge">HALL OF FAME</p><h2 id="top100-title">TOP 100에 올랐습니다!</h2><p id="top100-rank"></p><p class="nickname-intro">스코어보드에 남길 나만의 이름을 골라보세요.<br>우리 그룹 키워드를 조합해 만들어드려요!</p><output id="nickname-candidate" aria-live="polite">닉네임을 준비하고 있어요…</output><p id="nickname-status" role="status"></p><div class="nickname-actions"><button type="button" id="nickname-reroll" class="secondary">다른 이름 뽑기</button><button type="button" id="nickname-confirm">이 이름으로 등록!</button></div><p class="top100-note">확정한 이름은 다음 도전에도 이어집니다.<br>순위는 이벤트 종료 전까지 변동될 수 있습니다.</p><div class="top100-nav"><button type="button" id="top100-close" class="secondary">결과로 돌아가기</button><button type="button" id="top100-board" class="secondary" disabled>스코어보드로 가기</button></div></dialog><dialog id="help" class="result help-dialog" aria-labelledby="help-title">
 <p class="tag">MISSION GUIDE</p><h2 id="help-title">무진이 구출 작전</h2>
 <p class="help-intro">2032년의 성공 열쇠, 무진이를 2026년으로 데려와라!</p>
 <ol class="help-steps">
@@ -2053,7 +2056,7 @@ function localNickname(mode){
 }
 async function loadNickname(mode){
   const run=++nicknameRequestRun;
-  get('nickname-reroll').disabled=true;get('nickname-confirm').disabled=true;
+  get('nickname-reroll').disabled=true;get('nickname-confirm').disabled=true;get('top100-board').disabled=true;
   get('nickname-status').textContent=mode==='confirm'?'이름을 등록하고 있어요…':'새 이름을 뽑고 있어요…';
   try{
     const data=serverMode?await gameRequest('nickname',{coinId:serverCoin,mode}):localNickname(mode);
@@ -2066,11 +2069,8 @@ async function loadNickname(mode){
     get('nickname-confirm').disabled=nicknameConfirmed;
     get('nickname-status').textContent=nicknameConfirmed?'스코어보드에 이 이름으로 표시됩니다!':'다시 뽑기 '+nicknameRemaining+'회 남음 · 마음에 들면 확정해 주세요.';
     if(certifiedStanding&&nicknameConfirmed)certifiedStanding.nickname=data.nickname;
-    if(nicknameConfirmed&&mode==='confirm'){
-      top100Dialog.close();
-      if(!board.open)board.showModal();
-      renderRankings();
-    }else if(nicknameConfirmed)get('top100-close').focus();
+    get('top100-board').disabled=!nicknameConfirmed;
+    if(nicknameConfirmed)get('top100-board').focus();
   }catch(error){
     if(run!==nicknameRequestRun)return;
     get('nickname-status').textContent=error.message===errorMessages.NOT_TOP_100?error.message:'점수는 정상 등록됐어요. 닉네임을 불러오지 못했습니다. 다시 시도해 주세요.';
@@ -2080,7 +2080,7 @@ async function loadNickname(mode){
 }
 function showTop100(){
   if(!certifiedStanding||certifiedStanding.rank>100)return;
-  nicknameConfirmed=false;nicknameRemaining=30;get('nickname-confirm').textContent='이 이름으로 등록!';
+  nicknameConfirmed=false;nicknameRemaining=30;get('top100-board').disabled=true;get('nickname-confirm').textContent='이 이름으로 등록!';
   get('top100-rank').textContent='현재 '+certifiedStanding.rank+'위 · TOP 100 궤도 진입!';
   get('nickname-candidate').textContent='닉네임을 준비하고 있어요…';
   top100Dialog.showModal();
@@ -2091,6 +2091,12 @@ function showTop100(){
 get('nickname-reroll').addEventListener('click',()=>loadNickname('draw'));
 get('nickname-confirm').addEventListener('click',()=>loadNickname('confirm'));
 get('top100-close').addEventListener('click',()=>top100Dialog.close());
+get('top100-board').addEventListener('click',()=>{
+  if(!nicknameConfirmed)return;
+  top100Dialog.close();
+  if(!board.open)board.showModal();
+  renderRankings();
+});
 top100Dialog.addEventListener('close',()=>{nicknameRequestRun++;});
 function comboBonus(combo){return combo>0?100*2**(combo-1):0;}
 function finalScore(accuracy,combo,perfects=0){return Math.round(accuracy*80)+comboBonus(combo)+perfects*500;}
@@ -2121,6 +2127,12 @@ function maskedLeaderboardEmployee(employee){
   return prefix+'*'.repeat(employee.length-prefix.length-3)+employee.slice(-3);
 }
 let rankingGeneration=0;
+function scoreboardEmployee(employee){
+  const value=typeof employee==='string'?employee:'';
+  if(!value)return '—';
+  const masked=value.includes('*')?value:maskedLeaderboardEmployee(value);
+  return /^\*+$/.test(masked)?masked:masked.replace(/\*+/g,'***');
+}
 function renderRankingRows(data){
   const body=get('rankings');
   body.replaceChildren();
@@ -2128,7 +2140,7 @@ function renderRankingRows(data){
   function appendRecord(record){
     const row=document.createElement('tr');
     if(record.rank===data.ownRecord?.rank){ownRow=row;row.classList.add('my-ranking');row.setAttribute('aria-label','내 기록 · '+record.rank+'등');}
-    for(const value of [record.rank+'등',record.nickname||'닉네임 미등록',record.score,Number(record.accuracy).toFixed(2)+'%',record.combo]){
+    for(const value of [record.rank+'등',record.nickname||'닉네임 미등록',scoreboardEmployee(record.employee),record.score,Number(record.accuracy).toFixed(2)+'%',record.combo]){
       const cell=document.createElement('td');cell.textContent=String(value);row.append(cell);
     }
     body.append(row);
@@ -2136,7 +2148,7 @@ function renderRankingRows(data){
   for(const record of data.records)appendRecord(record);
   if(data.ownRecord?.rank>100){
     const gap=document.createElement('tr'),cell=document.createElement('td');
-    gap.classList.add('ranking-gap');cell.colSpan=5;cell.textContent='…';cell.setAttribute('aria-label','중간 순위 생략');gap.append(cell);body.append(gap);
+    gap.classList.add('ranking-gap');cell.colSpan=6;cell.textContent='…';cell.setAttribute('aria-label','중간 순위 생략');gap.append(cell);body.append(gap);
     appendRecord(data.ownRecord);
   }
   get('ranking-empty').hidden=data.records.length>0;
