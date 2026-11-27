@@ -1514,6 +1514,16 @@ body.mobile-rendering:not(.menu-mode) .arena #play{width:68px;height:68px;min-he
 #leaderboard table{width:100%;table-layout:fixed}body #leaderboard.scoreboard th:nth-child(1){width:9%}body #leaderboard.scoreboard th:nth-child(2){width:29%}body #leaderboard.scoreboard th:nth-child(3){width:17%}body #leaderboard.scoreboard th:nth-child(4){width:16%}body #leaderboard.scoreboard th:nth-child(5){width:19%}body #leaderboard.scoreboard th:nth-child(6){width:10%}
 #rankings td:nth-child(3){white-space:nowrap;font-family:"NeoDunggeunmo",monospace;font-size:12px;color:#b9abc9;letter-spacing:0}#leaderboard :is(th,td):nth-child(2){text-align:left}
 @media(max-width:520px){#rankings td:nth-child(2){font-size:11px}#rankings td:nth-child(3){font-size:10px}#leaderboard :is(th,td){padding-left:3px;padding-right:3px}}
+#leaderboard.scoreboard{width:min(1000px,calc(100vw - 28px));max-height:calc(100dvh - 28px);padding:26px 32px}
+body #leaderboard.scoreboard th:nth-child(1){width:10%}body #leaderboard.scoreboard th:nth-child(2){width:31%}body #leaderboard.scoreboard th:nth-child(3){width:18%}body #leaderboard.scoreboard th:nth-child(4){width:15%}body #leaderboard.scoreboard th:nth-child(5){width:16%}body #leaderboard.scoreboard th:nth-child(6){width:10%}
+#leaderboard.scoreboard th{font-size:14px;padding:12px 8px}#leaderboard.scoreboard td{font-size:18px;line-height:1.45;padding:13px 8px}#leaderboard.scoreboard #rankings td:nth-child(2){font-size:18px;max-width:none}#leaderboard.scoreboard #rankings td:nth-child(3){font-size:16px;color:#d2c8df}
+.rank-display{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}.rank-medal{font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif;font-size:25px;line-height:1}
+#rankings tr.podium-1{background:linear-gradient(90deg,#ffd16616,transparent)}#rankings tr.podium-2{background:linear-gradient(90deg,#d9e1f013,transparent)}#rankings tr.podium-3{background:linear-gradient(90deg,#d69a6b14,transparent)}#rankings tr.podium-1 td:first-child{color:#ffe5a1}#rankings tr.podium-2 td:first-child{color:#e0e6f2}#rankings tr.podium-3 td:first-child{color:#e9b68e}
+body.mobile-rendering #leaderboard.scoreboard{width:min(960px,calc(100vw - 16px));max-height:calc(100dvh - 16px);padding:14px 12px}
+body.mobile-rendering #leaderboard.scoreboard th{font-size:11px;padding:9px 4px}body.mobile-rendering #leaderboard.scoreboard td{font-size:14px;padding:11px 4px}body.mobile-rendering #leaderboard.scoreboard #rankings td:nth-child(2){font-size:14px}body.mobile-rendering #leaderboard.scoreboard #rankings td:nth-child(3){font-size:13px}
+@media(max-width:520px){body.mobile-rendering #leaderboard.scoreboard{padding:14px 10px}body.mobile-rendering #leaderboard.scoreboard th{font-size:10px;padding:8px 3px}body.mobile-rendering #leaderboard.scoreboard td{font-size:13px;padding:10px 3px}body.mobile-rendering #leaderboard.scoreboard #rankings td:nth-child(2){font-size:13px}body.mobile-rendering #leaderboard.scoreboard #rankings td:nth-child(3){font-size:12px}.rank-display{flex-direction:column;gap:2px;font-size:11px}.rank-medal{font-size:21px}body #leaderboard.scoreboard th:nth-child(2){width:29%}body #leaderboard.scoreboard th:nth-child(4){width:14%}body #leaderboard.scoreboard th:nth-child(5){width:19%}}
+@media(max-width:360px){body.mobile-rendering #leaderboard.scoreboard td{font-size:11px}body.mobile-rendering #leaderboard.scoreboard #rankings td:nth-child(2){font-size:12px}body.mobile-rendering #leaderboard.scoreboard #rankings td:nth-child(3){font-size:11px}}
+#leaderboard.scoreboard{max-width:calc(100vw - 16px)}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -2144,7 +2154,16 @@ function renderRankingRows(data){
   function appendRecord(record){
     const row=document.createElement('tr');
     if(record.rank===data.ownRecord?.rank){ownRow=row;row.classList.add('my-ranking');row.setAttribute('aria-label','내 기록 · '+record.rank+'등');}
-    for(const value of [record.rank+'등',record.nickname||'닉네임 미등록',scoreboardEmployee(record.employee),record.score,Number(record.accuracy).toFixed(2)+'%',record.combo]){
+    const rankCell=document.createElement('td'),rankDisplay=document.createElement('span'),rankValue=document.createElement('span');
+    rankDisplay.classList.add('rank-display');rankValue.textContent=record.rank+'등';
+    if(record.rank>=1&&record.rank<=3){
+      const medal=document.createElement('span');medal.classList.add('rank-medal');
+      medal.textContent=['🥇','🥈','🥉'][record.rank-1];medal.setAttribute('aria-hidden','true');
+      rankDisplay.append(medal);row.classList.add('podium-'+record.rank);
+      rankCell.setAttribute('aria-label',record.rank+'등 · '+['금','은','동'][record.rank-1]+'메달');
+    }
+    rankDisplay.append(rankValue);rankCell.append(rankDisplay);row.append(rankCell);
+    for(const value of [record.nickname||'닉네임 미등록',scoreboardEmployee(record.employee),record.score,Number(record.accuracy).toFixed(2)+'%',record.combo]){
       const cell=document.createElement('td');cell.textContent=String(value);row.append(cell);
     }
     body.append(row);
