@@ -2070,7 +2070,11 @@ async function loadNickname(mode){
     get('nickname-status').textContent=nicknameConfirmed?'스코어보드에 이 이름으로 표시됩니다!':'다시 뽑기 '+nicknameRemaining+'회 남음 · 마음에 들면 확정해 주세요.';
     if(certifiedStanding&&nicknameConfirmed)certifiedStanding.nickname=data.nickname;
     get('top100-board').disabled=!nicknameConfirmed;
-    if(nicknameConfirmed)get('top100-board').focus();
+    if(nicknameConfirmed&&mode==='confirm'){
+      top100Dialog.close();
+      if(!board.open)board.showModal();
+      renderRankings();
+    }else if(nicknameConfirmed)get('top100-board').focus();
   }catch(error){
     if(run!==nicknameRequestRun)return;
     get('nickname-status').textContent=error.message===errorMessages.NOT_TOP_100?error.message:'점수는 정상 등록됐어요. 닉네임을 불러오지 못했습니다. 다시 시도해 주세요.';
