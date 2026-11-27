@@ -63,6 +63,14 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
   assert.equal(node('arena').dataset.launch,'');
   assert.equal(requests.filter(item=>item.action==='start').length,configured?1:0);
   if(configured)assert.equal(run('phase'),1.1);
+  context.getComputedStyle=()=>{throw new Error('Rendering must not synchronously read computed style');};
+  run('advanceOrbit(performance.now()+16);paint(Math.PI);');
+  for(const id of ['ballA','ballB']){
+    assert.equal(node('front-'+id).style.display,'');
+    assert.equal(node('rear-'+id).style.display,'none');
+  }
+  assert.ok(Number.isFinite(run('readOrbitProjection().m11')));
+  delete context.getComputedStyle;
   for (let stage = 1; stage <= 8; stage++) {
     clockNow=run('started+(Math.PI-offset)*stagePeriod/turn');
     run('stop();');
