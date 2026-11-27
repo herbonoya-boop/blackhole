@@ -43,6 +43,7 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
         serverScore = body.stage * 1000 + 100 * 2 ** (body.stage - 1) + body.stage * 500;
         data = { accuracy: 100, perfect: true, score: serverScore, combo: body.stage, maxCombo: body.stage, perfects: body.stage };
       }
+      if (action === 'nickname') data={nickname:'빛나는 무궁이 · 1932',confirmed:body.mode==='confirm',drawsRemaining:29};
       if (action === 'submit') data = { rank: 1, participants: 1, score: serverScore, bestScore: serverScore };
       return { ok: true, json: async () => data };
     }
@@ -82,7 +83,7 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
   assert.equal(node('stamp').disabled, true);
   assert.equal(node('employee').readOnly, true);
   assert.equal(node('coin-standing').hidden, false);
-  if(configured)assert.equal(requests.at(-1).body.employee, '000001');
+  if(configured)assert.equal(requests.find(item=>item.action==='submit').body.employee, '000001');
   else{assert.equal(run('records[0].employee'),'000001');assert.equal(requests.some(item=>item.action==='finish'),false);assert.equal(node('preview-badge').hidden,false);}
   const failures = requests.filter(item => item.action === 'finish' && item.body.stage === 1);
   if(configured)assert.deepEqual(failures[0].body, failures[1].body);

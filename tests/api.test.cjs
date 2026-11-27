@@ -42,6 +42,12 @@ test('API keeps service key private and rejects invalid requests', async () => {
     assert.match(calls.at(-1).url, /rpc\/bh_personal_leaderboard$/);
     assert.equal(calls.at(-1).body.p_coin_id, session.coinId);
     assert.equal(calls.at(-1).body.p_token_hash.length, 64);
+    assert.equal((await request('POST','nickname',{...session,mode:'draw'},headers)).code,401);
+    assert.equal((await request('POST','nickname',{...session,mode:'draw',nickname:'free text'},{...headers,cookie})).code,400);
+    assert.equal((await request('POST','nickname',{...session,mode:'delete'},{...headers,cookie})).code,400);
+    assert.equal((await request('POST','nickname',{...session,mode:'draw'},{...headers,cookie})).code,200);
+    assert.match(calls.at(-1).url,/rpc\/bh_nickname$/);
+    assert.equal(calls.at(-1).body.p_action,'draw');
   } finally {
     global.fetch = originalFetch;
     for (const key of Object.keys(process.env)) if (!(key in originalEnv)) delete process.env[key];
