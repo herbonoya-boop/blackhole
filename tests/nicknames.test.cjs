@@ -8,5 +8,14 @@ const confirmed=await rpc('bh_nickname',[ids[0].id,token,'confirm']);assert.equa
 board=await rpc('bh_leaderboard',['mugung-mujin-2026']);assert.equal(board.records[0].nickname,first.nickname);const personal=await rpc('bh_personal_leaderboard',[ids[0].id,token]);assert.equal(personal.ownRecord.nickname,first.nickname);
 const nextCoin=await db.query(`insert into blackhole.coins(event_id,token_hash,network_hash,employee_id,submitted_at,completed_at,score,sum_accuracy,max_combo,perfect_count) select event_id,token_hash,network_hash,employee_id,clock_timestamp(),clock_timestamp(),score,sum_accuracy,max_combo,perfect_count from blackhole.coins where id=$1 returning id`,[ids[0].id]);assert.equal((await rpc('bh_nickname',[nextCoin.rows[0].id,token,'draw'])).nickname,first.nickname);
 let drawn;for(let i=0;i<33;i++)drawn=await rpc('bh_nickname',[ids[1].id,token,'draw']);assert.equal(drawn.drawsRemaining,0);const exhausted=await rpc('bh_nickname',[ids[1].id,token,'draw']);assert.equal(exhausted.nickname,drawn.nickname);assert.equal((await rpc('bh_nickname',[ids[1].id,token,'confirm'])).confirmed,true);
+const beforeDefinition=(await db.query("select pg_get_functiondef('public.bh_nickname(uuid,text,text)'::regprocedure) definition")).rows[0].definition;
+await db.exec(beforeDefinition.replace("'무진이',","'무진이','수석','동천수','에스티젠바이오','홀딩스','동아쏘시오홀딩스','추가키워드',"));
+await db.query("update blackhole.nicknames set nickname='빛나는 수석 · 1234' where employee_id='A000001'");
+await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/remove-nickname-keywords.sql'),'utf8'));
+const afterDefinition=(await db.query("select pg_get_functiondef('public.bh_nickname(uuid,text,text)'::regprocedure) definition")).rows[0].definition;
+for(const word of ['수석','동천수','에스티젠바이오','홀딩스','동아쏘시오홀딩스'])assert.equal(afterDefinition.includes("'"+word+"'"),false);
+assert.equal(afterDefinition.includes("'추가키워드'"),true);
+assert.equal((await rpc('bh_nickname',[ids[0].id,token,'draw'])).nickname,'빛나는 수석 · 1234');
+await db.exec(fs.readFileSync(path.join(__dirname,'../supabase/remove-nickname-keywords.sql'),'utf8'));
 const permission=await db.query("select has_function_privilege('anon','public.bh_nickname(uuid,text,text)','EXECUTE') allowed");assert.equal(permission.rows[0].allowed,false);
 }finally{await db.close();}});

@@ -310,7 +310,7 @@ create or replace function public.bh_nickname(p_coin_id uuid,p_token_hash text,p
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare c blackhole.coins; n blackhole.nicknames; v_rank bigint; v_name text;
  adjectives text[]:=array['반짝이는','용감한','빛나는','날쌘','든든한','신나는','다정한','당당한','힘찬','멋진','행운의','꿈꾸는','도약하는','비상하는','별빛의','우주의','미래의','열정의','희망의','무적의'];
- keywords text[]:=array['무궁이','무진이','동아','동아쏘시오','쏘시오','피닉스','수석','동천수','동아에코팩','동아제약','동아에스티','에스티팜','에스티젠바이오','동아오츠카','용마로지스','디에이인포메이션','아벤종합건설','박카스','판피린','챔프','노스카나','베나치오','가그린','검가드','모닝케어','미니막스','파티온','포카리스웨트','오로나민C','데미소다','오란씨','나랑드사이다'];
+ keywords text[]:=array['무궁이','무진이','동아','동아쏘시오','쏘시오','피닉스','동아에코팩','동아제약','동아에스티','에스티팜','동아오츠카','용마로지스','디에이인포메이션','아벤종합건설','박카스','판피린','챔프','노스카나','베나치오','가그린','검가드','모닝케어','미니막스','파티온','포카리스웨트','오로나민C','데미소다','오란씨','나랑드사이다'];
 begin
  c:=blackhole.lock_coin(p_coin_id,p_token_hash);
  if c.submitted_at is null or c.employee_id is null then raise exception 'COIN_INCOMPLETE'; end if;
