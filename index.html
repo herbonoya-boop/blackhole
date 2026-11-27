@@ -1446,6 +1446,11 @@ body[data-graphics="2"] #ambient-stars i:nth-child(3n),body[data-graphics="2"] .
 /* Moving SVG blur surfaces are expensive to repaint; the layered ribbon keeps its depth. */
 .arena[data-state="running"] #orbit-tilt :is(path,circle,ellipse,g){filter:none!important}
 body.performance-rendering.precision-play #ambient-stars i,body.performance-rendering.precision-play .meteor{animation-play-state:paused!important}
+#result #stage-countdown{display:block;box-sizing:border-box;width:min(100%,420px);margin:14px auto 0;padding:10px 16px 22px;text-align:center;font-size:14px;line-height:1.4}
+#result #stage-countdown[hidden]{display:none!important}
+#result #stage-countdown::before{content:"";position:absolute;left:12px;right:12px;bottom:8px;height:8px;border-radius:999px;background:#ffffff14}
+#result #stage-countdown::after{left:12px;right:12px;bottom:8px;height:8px;border-radius:999px;background:linear-gradient(90deg,#a778ff,#f3c1ff);box-shadow:0 0 8px #d59bff55}
+@media(max-height:500px){#result #stage-countdown{margin:8px auto 0;padding:7px 12px 20px;font-size:12px}}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
