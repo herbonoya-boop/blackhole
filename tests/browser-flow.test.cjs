@@ -13,7 +13,7 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
       events: {}, textContent: '',
       addEventListener(name, handler) { this.events[name] = handler; },
       setAttribute() {}, removeAttribute() {}, focus() {}, closest() { return node('arena'); },
-      querySelector() { return { focus() {}, replaceChildren() {}, append() {} }; }, showModal() { this.open = true; }, close() { this.open = false; },
+      querySelector() { return { focus() {}, replaceChildren() {}, append() {} }; }, showModal() { this.open = true; this.showCount=(this.showCount||0)+1; }, close() { this.open = false; },
       replaceChildren() {}, append() {}, setCustomValidity() {}, reportValidity() {}
     });
     return nodes.get(id);
@@ -74,9 +74,11 @@ for(const configured of [true,false]) test(configured?'hosted server stages and 
       await run('networkRetry()');
     }
     assert.equal(run('state'), 'finished');
+    assert.equal(node('result').showCount,stage,'each stage opens its result exactly once');
     if (stage < 8) { node('next-round').events.click(); await settle(); }
   }
   assert.equal(run('points'), 24800);
+  assert.equal(requests.filter(item=>item.action==='start').length,configured?8:0,'prefetch must not duplicate stage starts');
   assert.equal(requests.filter(item => item.action === 'submit').length, 0);
   node('employee').value = '000001';
   await node('form').events.submit({ preventDefault() {} });
