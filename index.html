@@ -1470,6 +1470,8 @@ body.mobile-rendering #actor-tilt{animation:none;transform:perspective(1100px) r
 #judgement-overlay{pointer-events:none;isolation:isolate}#judgement-overlay #combo-burst{filter:none}#judgement-overlay text{paint-order:stroke;stroke-linejoin:round}
 #sweet-label-overlay{display:none}.arena[data-state="settling"][data-combo-hit="true"] #sweet-label-overlay{display:block}
 #hit-feedback{z-index:25}#hit-feedback strong{z-index:2}
+/* A front-facing plane keeps the infinity path proportional on narrow screens. */
+body.mobile-rendering #orbit-tilt,body.mobile-rendering #actor-tilt{animation:none;transform:none}
 </style><!-- Embedded Do Hyeon font license
 Copyright 2018 The Do Hyeon Project Authors
 
@@ -1688,7 +1690,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 <div class="readouts" role="group" aria-label="미션 현황"><div class="hud-tile"><span>STAGE</span><output id="round">1 / 8</output></div><div class="hud-tile"><span>COMBO</span><output id="combo">0</output></div><div class="hud-tile score-tile"><span>SCORE</span><output id="total">0</output></div></div>
 </div>
-<svg viewBox="0 17 900 305" role="img" aria-label="두 캐릭터가 도는 8자 트랙과 중앙 표적">
+<svg viewBox="0 17 900 305" preserveAspectRatio="xMidYMid meet" role="img" aria-label="두 캐릭터가 도는 8자 트랙과 중앙 표적">
 <defs><pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#b398e9" opacity=".22"/></pattern><linearGradient id="track" gradientUnits="userSpaceOnUse" x1="58" y1="42" x2="842" y2="306"><stop style="stop-color:var(--stage-light)" stop-color="#f9b4e8" stop-opacity=".76"/><stop style="stop-color:var(--stage-dark)" offset=".2" stop-color="#35254f" stop-opacity=".88"/><stop style="stop-color:var(--stage-color)" offset=".43" stop-color="#de86dc" stop-opacity=".8"/><stop style="stop-color:var(--stage-dark)" offset=".58" stop-color="#161f42" stop-opacity=".92"/><stop style="stop-color:var(--stage-color)" offset=".8" stop-color="#9e77d6" stop-opacity=".74"/><stop style="stop-color:var(--stage-light)" offset="1" stop-color="#ffd1ef" stop-opacity=".6"/><animateTransform attributeName="gradientTransform" type="rotate" values="-14 450 174;16 450 174;-14 450 174" dur="8s" repeatCount="indefinite"/></linearGradient><linearGradient id="ribbon-edge" gradientUnits="userSpaceOnUse" x1="58" y1="174" x2="842" y2="174"><stop style="stop-color:var(--stage-color)" stop-color="#ffc8ef" stop-opacity=".16"/><stop style="stop-color:var(--stage-light)" offset=".36" stop-color="#ffe5fc" stop-opacity=".95"/><stop style="stop-color:var(--stage-dark)" offset=".65" stop-color="#8372ce" stop-opacity=".13"/><stop style="stop-color:var(--stage-color)" offset="1" stop-color="#e9bdff" stop-opacity=".76"/><animateTransform attributeName="gradientTransform" type="translate" values="-180 0;160 0;-180 0" dur="6s" repeatCount="indefinite"/></linearGradient><filter id="track-glow" x="-25%" y="-40%" width="150%" height="180%"><feGaussianBlur stdDeviation="8"/></filter><radialGradient id="violet" cx="35%" cy="27%"><stop stop-color="#fff"/><stop offset=".35" stop-color="#d5b5ff"/><stop offset="1" stop-color="#8b48ff"/></radialGradient><radialGradient id="mint" cx="35%" cy="27%"><stop stop-color="#fff"/><stop offset=".35" stop-color="#b3fff5"/><stop offset="1" stop-color="#19a9bd"/></radialGradient><filter id="glow" x="-130%" y="-130%" width="360%" height="360%"><feGaussianBlur stdDeviation="8"/></filter></defs>
 <defs>
 <radialGradient id="sun-light" cx="35%" cy="32%"><stop stop-color="#fff3b4"/><stop offset=".58" stop-color="#ffaf45"/><stop offset="1" stop-color="#c64c26"/></radialGradient>
@@ -1904,7 +1906,10 @@ function fitGameViewport(){
   const viewportHeight=window.visualViewport?.height||window.innerHeight;
   document.documentElement.style.setProperty('--game-height',viewportHeight+'px');
   const screen=document.querySelector('.arena>svg');
-  if(screen) screen.setAttribute('viewBox',(mobileOptimized||window.innerWidth<=900)?'90 40 720 275':'70 35 760 285');
+  if(screen){
+    screen.setAttribute('viewBox',(mobileOptimized||window.innerWidth<=900)?'90 40 720 275':'70 35 760 285');
+    screen.setAttribute('preserveAspectRatio','xMidYMid meet');
+  }
 }
 document.fonts.ready.then(()=>{fitMissionHeading();fitOpeningMission();fitGameViewport();});
 
